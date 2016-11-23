@@ -1,0 +1,26 @@
+{
+  "name": "simple-nosql",
+  "version": "1.0.0",
+  "description": "Simple NoSQL library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glynnbird/simple-nosql.git"
+  },
+  "keywords": [
+    "nosql"
+  ],
+  "author": "Glynn Bird <glynn.bird@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/glynnbird/simple-nosql/issues"
+  },
+  "homepage": "https://github.com/glynnbird/simple-nosql#readme",
+  "dependencies": {
+    "async": "^2.1.4",
+    "cloudant": "^1.6.2"
+  }
+}
