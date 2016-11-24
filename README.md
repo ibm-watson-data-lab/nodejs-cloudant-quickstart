@@ -196,3 +196,74 @@ animals.count(['collection','colour']).then(console.log);
 //   { key: [ 'dogs', 'gold' ], value: 1 },
 //   { key: [ 'dogs', 'white' ], value: 1 } ]
 ```
+
+## Stats
+
+To get the stats on your documents, call the `stats` function passing in the field you would like statistics on:
+
+```js
+// get stats on an animals' cost
+animals.stats('cost').then(console.log);
+// [
+//   {
+//     "key": null,
+//     "value": {"sum":7573,"count":10,"min":252,"max":1022,"sumsqr":6368191}
+//   }
+// ]
+```
+
+This also works for an array of fields:
+
+```js
+// get stats on animals' cost & weight
+animals.stats(['cost','weight']).then(console.log);
+// [
+//   { 
+//     "key": null,
+//     "value": [
+//       {"sum":7573,"count":10,"min":252,"max":1022,"sumsqr":6368191},
+//       {"sum":342.26000000000005,"count":10,"min":4.21,"max":164.21,"sumsqr":34679.994600000005}
+//     ]
+//   }
+// ]
+```
+
+The stats can also be grouped by another field by providing a second parameter:
+
+```js
+// get stats on animals' cost - grouped by collection
+animals.stats('cost', 'collection').then(console.log);
+// [
+//   {
+//     "key": "cats", 
+//     "value": {"sum":3866,"count":5,"min":524,"max":1022,"sumsqr":3167598}
+//   },
+//   {
+//     "key":"dogs",
+//      "value": {"sum":3707,"count":5,"min":252,"max":992,"sumsqr":3200593}
+//   }
+// ]
+```
+
+Arrays work for grouping too:
+
+```js
+// get stats on animals' cost & weight - grouped by collection
+nosql('pets').stats(['cost','weight'], 'collection').then(JSON.stringify).then(console.log);
+// [
+//   {
+//     "key": "cats",
+//     "value": [
+//        {"sum":3866,"count":5,"min":524,"max":1022,"sumsqr":3167598},
+//        {"sum":57.43000000000001,"count":5,"min":4.21,"max":36.21,"sumsqr":1429.0722999999998}
+//     ]
+//    },
+//    {
+//      "key": "dogs",
+//       "value":[
+//         {"sum":3707,"count":5,"min":252,"max":992,"sumsqr":3200593},
+//         {"sum":284.83000000000004,"count":5,"min":14.21,"max":164.21,"sumsqr":33250.922300000006}
+//        ]
+//    }
+// ]  
+```
