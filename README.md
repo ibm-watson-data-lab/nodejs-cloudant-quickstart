@@ -6,6 +6,7 @@ An NoSQL store built using Cloudant but hiding some of Cloudant's more advanced 
 - Replication
 - Design Documents
 - MVCC (revision tokens)
+- Attachments
 
 ## Installation
 
@@ -45,7 +46,8 @@ but all database operations are asynchronous.
 Before a database can be used, it must be created once:
 
 ```js
-  nosql("animals").create()
+  nosql("animals").create().then(console.log);
+  // {ok:true}
 ```
 
 ### Adding documents
@@ -55,6 +57,8 @@ Add a document to a database with the `insert` function:
 ```js
   nosql("animals")
     .insert({ _id: 'dog1', name:"Bobby", colour:"black", collection:"dogs"})
+    .then(console.log);
+  // { ok: true, _id: 'dog1' }
 ```
 
 Documents have a key field `_id` which must be unique across the database. It can
@@ -63,12 +67,10 @@ either be supplied by you in the object you create or can be omitted and one wil
 ```js
   var animals = nosql("animals");
 
-  animals.insert({name:"Sam", colour:"grey"}).then(function(data) {
-    // {
-    //    "ok": true,
-    //    "_id": "f03bb0361f1a507d3dc68d0e860675b6"
-    //  }
-  });
+  animals
+    .insert({name:"Sam", colour:"grey", collection:"dogs"})
+    .then(console.log);
+  // { ok: true, _id: "f03bb0361f1a507d3dc68d0e860675b6" }
 ```
 
 We can insert arrays of documents for bulk inserts:
@@ -77,21 +79,29 @@ We can insert arrays of documents for bulk inserts:
    var somecats = [
      { _id:"cat1", name:"Paws", colour:"tabby", collection:"cats"},
      { _id:"cat2", name:"Fluffy", colour:"white", collection:"cats"},
-     { _id:"cat3", name:"Snowy", colour:"white", collection:"cats"}
+     { _id:"cat3", name:"Snowy", colour:"white", collection:"cats"},
+     { _id:"cat4", name:"Mittens", colour:"black", collection:"cats"}
    ];
-   animals.insert(somecats);
+   animals.insert(somecats).then(console.log);
+   // [ { ok: true, _id: 'cat1' },
+   //   { ok: true, _id: 'cat2' },
+   //   { ok: true, _id: 'cat3' },
+   //   { ok: true, _id: 'cat4' } ]
 ```
 
 ### Fetching documents by id
 
 ```js
-  animals.get("cat1");
+  animals.get("cat1").then(console.log);
+  // { _id: 'cat1', name: 'Paws', colour: 'tabby', collection: 'cats' }
 ```
 
 or by supplying multiple document ids:
 
 ```js
-  animals.get(["cat1","cat2"]);
+  animals.get(["cat1","cat2"]).then(console.log);
+  // [ { _id: 'cat1', name: 'Paws', colour: 'tabby', collection: 'cats' },
+  //   { _id: 'cat2', name: 'Fluffy', colour: 'white', collection: 'cats' } ]
 ```
 
 ### Updating documents
@@ -101,7 +111,8 @@ A document can be replaced with a new document by supplying its `_id`:
 ```js
   var id = "dog1";
   var newdoc = {name:"Bobbie", colour:"black", collection:"dogs"};
-  animals.update(id, newdoc);
+  animals.update(id, newdoc).then(console.log);
+  // {ok:true}
 ```
 
 ### Deleting documents
@@ -110,7 +121,8 @@ A document can be deleted by supplying its `_id`:
 
 ```js
   var id = "dog1";
-  animals.del(id);
+  animals.del(id).then(console.log);
+  // {ok:true}
 ```
 
 ## Querying a collection
@@ -118,41 +130,34 @@ A document can be deleted by supplying its `_id`:
 All documents can be retrieved with the `all` function:
 
 ```js
-   animals.all().then(function(data) {
-     // [
-     //   { "_id": "dog1", "name": "Bobbie", "colour": "black", collection:"dogs" },
-     //   { "_id": "f03bb0361f1a507d3dc68d0e860675b6", "name": "Sam", "colour": "grey" },
-     // ]
-   });
+  animals.all().then(console.log);
+  // [ { _id: 'cat1', name: 'Paws', colour: 'tabby', collection: 'cats' },
+  //   { _id: 'cat2', name: 'Fluffy', colour: 'white', collection: 'cats' },
+  //   { _id: 'cat3', name: 'Snowy', colour: 'white', collection: 'cats' },
+  //   { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats' },
+  //   { _id: 'dog1', name: 'Bobbie', colour: 'black', collection: 'dogs' } ]
 ```
 
 or the list can be queried by passing a query to `all` or the `query` function:
 
 ```js
-   animals.query({colour: 'white'}).then(function(data) {
-     // [
-     //   { _id:"cat2", name:"Fluffy", colour:"white", collection:"cats"},
-     //   { _id:"dog6", name:"Patch", colour:"white", collection:"dogs"},
-     // ]
-   });
+   animals.query({colour: 'white'}).then(console.log);
+   // [ { _id: 'cat3', name: 'Snowy', colour: 'white', collection: 'cats' },
+   //   { _id: 'cat2', name: 'Fluffy', colour: 'white', collection: 'cats' } ]
 ```
 
 The query can be key/value pairs which are AND'd together:
 
 ```js
-   animals.query({colour: 'white', collection:'cats'}).then(function(data) {
-     // [
-     //   { _id:"cat2", name:"Fluffy", colour:"white", collection:"cats"},
-     // ]
-   });
+   animals.query({colour: 'black', collection:'cats'}).then(console.log);
+   // [ { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats' } ]
 ```
 
  or it can be a full Cloudant Query Selector object.
 
 ```js
-   animals.query({ "$or": [{colour: 'white'}, { collection:'cats'}]).then(function(data) {
-     // [
-     //   matching documents here
-     // ]
-   });
+   animals.query({ "$or": [ {name:'Paws'}, {colour:'black'} ]}).then(console.log);
+   // [ { _id: 'cat1', name: 'Paws', colour: 'tabby', collection: 'cats' },
+   //   { _id: 'dog1', name: 'Bobbie', colour: 'black', collection: 'dogs' },
+   //   { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats' } ]
 ```
