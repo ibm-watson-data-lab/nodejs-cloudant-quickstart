@@ -183,6 +183,14 @@ animals.count('colour').then(console.log);
 //  { key: 'white', value: 2 } ]
 ```
 
+The string can represent an value from deeper within your document:
+```js
+animals.count('address.postcode').then(console.log);
+// [ { key: 'BT', value: 1 },
+//  { key: 'NE', value: 3 },
+//  { key: 'TS', value: 6 } ]
+```
+
 This also works for multi-dimensional counts:
 
 ```js
