@@ -136,7 +136,14 @@ animals.all().then(console.log);
 //   { _id: 'dog1', name: 'Bobbie', colour: 'black', collection: 'dogs' } ]
 ```
 
-or the list can be queried by passing a query to `all` or the `query` function:
+For larger data sets, the document list can be retrieved in blocks of 100:
+
+```js
+// return records 300 to 400
+animals.all({skip:300})
+```
+
+or the list can be queried by passing a query to `query` function:
 
 ```js
 animals.query({colour: 'white'}).then(console.log);
