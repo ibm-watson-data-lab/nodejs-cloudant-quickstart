@@ -1,7 +1,7 @@
 var assert = require('assert');
 var utils = require('../lib/utils.js');
 
-describe('Utils', function() {
+describe('utils', function() {
 
   it('should expose two functions', function() {
     assert(typeof utils.isArray, 'function');

@@ -1,7 +1,7 @@
 var assert = require('assert');
 var strip = require('../lib/strip.js');
 
-describe('Strip', function() {
+describe('strip', function() {
 
   it('should expose two functions', function() {
     assert(typeof strip.singleDoc, 'function');
