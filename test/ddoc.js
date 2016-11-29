@@ -24,7 +24,7 @@ describe('ddoc', function() {
     return d.get(thedoc._id).then(function(data) {
       assert.equal(typeof data, 'object');
       assert.deepEqual(data, thedoc);
-      assert(nock.isDone());
+      assert(mocks.isDone());
     }).catch(function(err) {
       assert(false);
     });
@@ -43,7 +43,7 @@ describe('ddoc', function() {
       assert.equal(data._id, id);
       assert.equal(typeof data.views, 'object');
       assert.equal(Object.keys(data.views).length, 0);
-      assert(nock.isDone());
+      assert(mocks.isDone());
     }).catch(function(err) {
       assert(false);
     });

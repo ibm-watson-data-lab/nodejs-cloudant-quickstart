@@ -21,7 +21,7 @@ describe('attempt', function() {
       .delete('/mydb/' + thedoc._id + '?rev=' + thedoc._rev).reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
     var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
     return attempt.del(cloudant, 'mydb', thedoc._id).then(function(data) {
-      assert(nock.isDone());
+      assert(mocks.isDone());
     });
   });
 
@@ -35,7 +35,7 @@ describe('attempt', function() {
       .delete('/mydb/' + thedoc._id + '?rev=' + thedoc2._rev).reply(200, {ok: true, id: thedoc._id, rev: '3-678'});
     var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
     return attempt.del(cloudant, 'mydb', thedoc._id).then(function(data) {
-      assert(nock.isDone());
+      assert(mocks.isDone());
     });
   });
 
@@ -52,7 +52,7 @@ describe('attempt', function() {
       .delete('/mydb/' + thedoc._id + '?rev=' + thedoc3._rev).reply(200, {ok: true, id: thedoc._id, rev: '4-91011'});
     var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
     return attempt.del(cloudant, 'mydb', thedoc._id).then(function(data) {
-      assert(nock.isDone());
+      assert(mocks.isDone());
     });
   });
 
@@ -72,7 +72,7 @@ describe('attempt', function() {
       assert(false);
     }).catch(function(err) {
       assert.equal(err.statusCode, 409);
-      assert(nock.isDone());
+      assert(mocks.isDone());
     }) ;
   });
 
@@ -85,9 +85,96 @@ describe('attempt', function() {
       assert(false);
     }).catch(function(err) {
       assert.equal(err.statusCode, 404);
-      assert(nock.isDone());
+      assert(mocks.isDone());
     }) ;
   });
 
+  it('should update a document at the first attempt', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var theupdate = { a:1, b:3 };
+    var theupdatewithrev = { _id: 'myddoc', _rev: '1-123', a:1, b:3 };
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb',  theupdatewithrev).reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    return attempt.update(cloudant, 'mydb', thedoc._id, theupdate).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
 
+  it('should update a non-existant doc', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var theupdate = { _id: 'myddoc', a:1, b:3 };
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(404, {ok:false, err:'not_found', reason:'missing'})
+      .post('/mydb',  theupdate).reply(200, {ok: true, id: thedoc._id, rev: '1-123'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    return attempt.update(cloudant, 'mydb', thedoc._id, theupdate).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should not bother updating an identical doc', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var theupdate = { a:1, b:2 };
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    return attempt.update(cloudant, 'mydb', thedoc._id, theupdate).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should update a document at the second attempt', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var thedoc2 = { _id: 'myddoc', _rev: '2-456', a:1, b:2 };
+    var theupdate = {a:1, b:3};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .get('/mydb/' + thedoc._id).reply(200, thedoc2)
+      .post('/mydb', theupdate).reply(200, {ok: true, id: thedoc._id, rev: '3-91011'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    return attempt.update(cloudant, 'mydb', thedoc._id, theupdate).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should update a document at the third attempt', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var thedoc2 = { _id: 'myddoc', _rev: '2-456', a:1, b:2 };
+    var thedoc3 = { _id: 'myddoc', _rev: '3-678', a:1, b:2 };
+    var theupdate = {a:1, b:3};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .get('/mydb/' + thedoc._id).reply(200, thedoc2)
+      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .get('/mydb/' + thedoc._id).reply(200, thedoc3)
+      .post('/mydb', theupdate).reply(200, {ok: true, id: thedoc._id, rev: '4-91011'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    return attempt.update(cloudant, 'mydb', thedoc._id, theupdate).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should fail after a failed third attempt', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var thedoc2 = { _id: 'myddoc', _rev: '2-456', a:1, b:2 };
+    var thedoc3 = { _id: 'myddoc', _rev: '3-678', a:1, b:2 };
+    var theupdate = {a:1, b:3};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .get('/mydb/' + thedoc._id).reply(200, thedoc2)
+      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .get('/mydb/' + thedoc._id).reply(200, thedoc3)
+      .post('/mydb', theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    return attempt.update(cloudant, 'mydb', thedoc._id, theupdate).then(function(data) {
+      assert(false);
+    }).catch(function(err) {
+      assert(mocks.isDone());
+    });
+  });
 });
