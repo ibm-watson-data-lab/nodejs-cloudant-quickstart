@@ -134,6 +134,9 @@ animals
 // {ok:true}
 ```
 
+Even if the document id doesn't already exist, *simplenosql* will write a new document, so in a sense the `insert`
+function is rather like an "upsert" operation: either update and replace the existing document or create a new one.
+
 ### Deleting documents
 
 A document can be deleted by supplying its `_id`:
@@ -146,7 +149,7 @@ animals
 // {ok:true}
 ```
 
-## Querying a collection
+## Querying a database
 
 All documents can be retrieved with the `all` function:
 
@@ -201,7 +204,7 @@ animals
 
 ### Counting
 
-The number of fields in a database can be obtained with the `count` function:
+The number of documents in a database can be obtained with the `count` function:
 
 ```js
 animals
@@ -210,7 +213,7 @@ animals
 // [ { key: null, value: 5 } ]
 ```
 
-Passing a string to `count` returns the number of occurences of that field's value:
+Passing a string to `count` returns the number of occurences of that field's values:
 
 ```js
 animals
@@ -222,7 +225,7 @@ animals
 //  { key: 'white', value: 2 } ]
 ```
 
-Values from deeper within your document can be accessed using object notation
+Values from deeper within your document can be accessed using object notation:
 
 - `address.postcode`
 - `socialmedia.facebook.email`
@@ -241,7 +244,8 @@ animals
 
 ## Stats
 
-To get the stats on your documents, call the `stats` function passing in the field you would like statistics on:
+To get the statistics on values from your documents, call the `stats` function passing in the 
+field you would like statistics on:
 
 ```js
 // get stats on an animals' cost

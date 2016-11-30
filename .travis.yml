@@ -1,0 +1,7 @@
+language: "node_js"
+env: DEBUG=*
+node_js:
+  - "node"
+os:
+  - linux
+
