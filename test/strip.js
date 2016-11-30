@@ -8,6 +8,12 @@ describe('strip', function() {
     assert(typeof strip.arrayOfDocs, 'function');
   });
 
+  it('should handle null', function() {
+    var doc = null;
+    var d = strip.singleDoc(doc);
+    assert.equal(doc, null);
+  });
+
   it('should strip _rev', function() {
     var doc = { _id:'a', _rev: 'b', property:'c'};
     var d = strip.singleDoc(doc);

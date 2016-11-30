@@ -38,6 +38,35 @@ describe('utils', function() {
     assert(typeof d[1].rev, 'undefined');
     assert.equal(d[1]._id, 'x');
     assert.equal(d[1].property, 'z');
+  });
+
+  it('should format an object with an array of docs', function() {
+    var docs = [
+      { _id:'a', _rev: 'b', property:'c'},
+      { _id:'x', _rev: 'y', property:'z'}
+    ];
+    var d = utils.formatOutput({ docs: docs});
+    assert(typeof d[0].rev, 'undefined');
+    assert.equal(d[0]._id, 'a');
+    assert.equal(d[0].property, 'c');
+    assert(typeof d[1].rev, 'undefined');
+    assert.equal(d[1]._id, 'x');
+    assert.equal(d[1].property, 'z');
+  });
+
+  it('should format an object with an array of rows with docs inside', function() {
+    var rows = [
+      { key: 'a', value:{}, doc: { _id:'a', _rev: 'b', property:'c'}},
+      { key: 'x', value:{}, doc: { _id:'x', _rev: 'y', property:'z'}},
+      { key: 'z', value:{}, doc: null}
+    ];
+    var d = utils.formatOutput({ rows: rows});
+    assert(typeof d[0].rev, 'undefined');
+    assert.equal(d[0]._id, 'a');
+    assert.equal(d[0].property, 'c');
+    assert(typeof d[1].rev, 'undefined');
+    assert.equal(d[1]._id, 'x');
+    assert.equal(d[1].property, 'z');
   })
 
 });

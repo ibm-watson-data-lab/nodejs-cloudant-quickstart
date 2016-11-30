@@ -69,7 +69,7 @@ describe('db', function() {
     });
   });
 
-  it('into - should get database information', function() {
+  it('info - should get database information', function() {
     var reply = {
       "update_seq": "a",
       "db_name": "mydb",
@@ -101,6 +101,73 @@ describe('db', function() {
     });
   });
 
+  it('get - should get an single document', function() {
+    var reply =  { _id: '1', _rev:'1-123', a:1};
+    var mocks = nock(SERVER)
+      .get('/mydb/1').reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').get('1').then(function(data) {
+      assert.equal(typeof data, 'object');
+      assert.equal(data._id, '1');
+      assert.equal(typeof data._rev, 'undefined');
+      assert.equal(data.a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('get - should get an array of documents', function() {
+    var reply = {
+      total_rows: 3,
+      rows: [
+        { id: '1', key: '1', value: { rev: '1-123'}, doc: { _id: '1', _rev:'1-123', a:1}},
+        { id: '2', key: '2', value: { rev:'1-123'}, doc: { _id: '2', _rev:'1-123', a:2}}
+      ]
+    };
+    var mocks = nock(SERVER)
+      .get('/mydb/_all_docs?keys=%5B%221%22%2C%222%22%5D&include_docs=true').reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').get(['1','2']).then(function(data) {
+      assert.equal(data.length, 2);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('get - should get an array of documents with errors', function() {
+    var reply = {
+      total_rows: 3,
+      rows: [
+        { id: '1', key: '1', value: { rev: '1-123'}, doc: { _id: '1', _rev:'1-123', a:1}},
+        { id: '2', err:'not_found', reason: 'missing' }
+      ]
+    };
+    var mocks = nock(SERVER)
+      .get('/mydb/_all_docs?keys=%5B%221%22%2C%222%22%5D&include_docs=true').reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').get(['1','2']).then(function(data) {
+      assert.equal(data.length, 2);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert.equal(data[1]._id, '2');
+      assert.equal(typeof data[1]._error, 'string');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
   it('all - should get all documents', function() {
     var reply = {
       total_rows: 3,
@@ -126,6 +193,91 @@ describe('db', function() {
     });
   });
 
+  it('all - should get with skip and limit 1', function() {
+    var reply = {
+      total_rows: 3,
+      rows: [
+        { id: '1', key: '1', value: { rev: '1-123'}, doc: { _id: '1', _rev:'1-123', a:1}},
+        { id: '2', key: '2', value: { rev:'1-123'}, doc: { _id: '2', _rev:'1-123', a:2}},
+        { id: '3', key: '3', value: { rev:'1-123'}, doc: { _id: '3', _rev:'1-123', a:3}},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .get('/mydb/_all_docs?limit=3&include_docs=true').reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').all({limit:3}).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('all - should get with skip and limit 2', function() {
+    var reply = {
+      total_rows: 3,
+      rows: [
+        { id: '1', key: '1', value: { rev: '1-123'}, doc: { _id: '1', _rev:'1-123', a:1}},
+        { id: '2', key: '2', value: { rev:'1-123'}, doc: { _id: '2', _rev:'1-123', a:2}},
+        { id: '3', key: '3', value: { rev:'1-123'}, doc: { _id: '3', _rev:'1-123', a:3}},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .get('/mydb/_all_docs?skip=100&limit=100&include_docs=true').reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').all({ skip:100, limit:200}).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('query - should get all documents', function() {
+    var reply = {
+      docs: [
+         { _id: '1', _rev:'1-123', a:1, collection:'dogs'},
+         { _id: '2', _rev:'1-123', a:2, collection:'dogs'},
+         { _id: '3', _rev:'1-123', a:3, collection:'dogs'},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .post('/mydb/_find',{ selector: { collection:'dogs'}}).reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').query({collection:'dogs'}).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('query - should return nothing for no query', function() {
+    var reply = [];
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').query().then(function(data) {
+      assert.equal(data.length, 0);
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
   it('insert - should add a document', function() {
     var mocks = nock(SERVER)
       .post('/mydb').reply(200, {ok:true, id:'mydoc', rev: '1-123' });
@@ -140,7 +292,37 @@ describe('db', function() {
     });
   });
 
+  it('insert - should add a multiple documents', function() {
+    var mocks = nock(SERVER)
+      .post('/mydb/_bulk_docs').reply(200, [{ok:true, id:'mydoc1', rev: '1-123' }, {ok:true, id:'mydoc2', rev: '1-123' }]);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').insert([{_id:'mydoc1', a:1},{_id:'mydoc2', a:1}]).then(function(data) {
+      assert.equal(data.length, 2);
+      assert.equal(data[0]._id, 'mydoc1');
+      assert.equal(data[1]._id, 'mydoc2');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
   it('update - should update a document', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var thedoc2 = {  a:2, b:3, _rev: '1-123', _id: 'myddoc'};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb').reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').update(thedoc._id, {a:2, b:2}).then(function(data) {
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('del - should delete a document', function() {
     var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
     var mocks = nock(SERVER)
       .get('/mydb/' + thedoc._id).reply(200, thedoc)
@@ -198,6 +380,39 @@ describe('db', function() {
       assert.equal(typeof data[0].value, 'object');
       assert(mocks.isDone());
     }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('stats - should calculate stats for an array of fields', function() {
+    var mocks = nock(SERVER)
+      .get('/mydb/_design/65232a576ff921242b86c07186aa066311df41bf').reply(404, {ok: false, err: 'not_found',reason:'missing'})
+      .post('/mydb').reply(200, {ok:true, id:'_design/65232a576ff921242b86c07186aa066311df41bf', rev:'1-123'})
+      .get('/mydb/_design/65232a576ff921242b86c07186aa066311df41bf/_view/65232a576ff921242b86c07186aa066311df41bf?group=true').reply(200, {rows:[{key:null, value:[{},{}] }]});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').stats(['price','age']).then(function(data) {
+      assert.equal(data[0].value.length, 2);
+      assert.equal(typeof data[0].value[0], 'object');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err);
+      assert(false);
+    });
+  });
+
+  it('stats - should calculate stats for a filed grouped by an array of values', function() {
+    var mocks = nock(SERVER)
+      .get('/mydb/_design/fb9faa104e3cfd4ebe15d9e76734954fdd70c0c0').reply(404, {ok: false, err: 'not_found',reason:'missing'})
+      .post('/mydb').reply(200, {ok:true, id:'_design/fb9faa104e3cfd4ebe15d9e76734954fdd70c0c0', rev:'1-123'})
+      .get('/mydb/_design/fb9faa104e3cfd4ebe15d9e76734954fdd70c0c0/_view/fb9faa104e3cfd4ebe15d9e76734954fdd70c0c0?group=true').reply(200, {rows:[{key:['dog','black'], value:{} }]});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').stats('price', ['collection', 'colour']).then(function(data) {
+      assert.equal(data[0].key.length, 2);
+      assert.equal(typeof data[0].value, 'object');
+      assert(mocks.isDone());
+    }).catch(function(err) {
       console.log(err);
       assert(false);
     });
@@ -214,9 +429,14 @@ describe('db', function() {
       assert.equal(typeof data[0].value, 'object');
       assert(mocks.isDone());
     }).catch(function(err) {
-      console.log(err);
       assert(false);
     });
+  });
+
+  it('stats - with missing value field should throw error', function() {
+      var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    assert.throws(nosql('mydb').stats, Error, 'Missing "val" parameter');
   });
 
 
