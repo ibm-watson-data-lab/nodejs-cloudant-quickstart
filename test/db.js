@@ -168,6 +168,56 @@ describe('db', function() {
       console.log(err);
       assert(false);
     });
-  })
+  });
+
+  it('count - should count by field', function() {
+    var mocks = nock(SERVER)
+      .get('/mydb/_design/393e545a0127f9f985a899338a5b4816f2cd1da1').reply(404, {ok: false, err: 'not_found',reason:'missing'})
+      .post('/mydb').reply(200, {ok:true, id:'_design/393e545a0127f9f985a899338a5b4816f2cd1da1', rev:'1-123'})
+      .get('/mydb/_design/393e545a0127f9f985a899338a5b4816f2cd1da1/_view/393e545a0127f9f985a899338a5b4816f2cd1da1?group=true').reply(200, {rows:[{key:'black', value:5}]});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').count('colour').then(function(data) {
+      assert.equal(data[0].value, 5);
+      assert.equal(data[0].key, 'black');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err);
+      assert(false);
+    });
+  });
+
+  it('stats - should calculate stats for a field', function() {
+    var mocks = nock(SERVER)
+      .get('/mydb/_design/3e4bfe1dc808b5c85d4b288a11e77ba47c5bb486').reply(404, {ok: false, err: 'not_found',reason:'missing'})
+      .post('/mydb').reply(200, {ok:true, id:'_design/3e4bfe1dc808b5c85d4b288a11e77ba47c5bb486', rev:'1-123'})
+      .get('/mydb/_design/3e4bfe1dc808b5c85d4b288a11e77ba47c5bb486/_view/3e4bfe1dc808b5c85d4b288a11e77ba47c5bb486?group=true').reply(200, {rows:[{key:null, value:{} }]});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').stats('price').then(function(data) {
+      assert.equal(typeof data[0].value, 'object');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err);
+      assert(false);
+    });
+  });
+
+  it('stats - should calculate stats for a field grouped by another field', function() {
+    var mocks = nock(SERVER)
+      .get('/mydb/_design/e9bf00f989ca3fab2b6992ec0cc69af6070a05b2').reply(404, {ok: false, err: 'not_found',reason:'missing'})
+      .post('/mydb').reply(200, {ok:true, id:'_design/e9bf00f989ca3fab2b6992ec0cc69af6070a05b2', rev:'1-123'})
+      .get('/mydb/_design/e9bf00f989ca3fab2b6992ec0cc69af6070a05b2/_view/e9bf00f989ca3fab2b6992ec0cc69af6070a05b2?group=true').reply(200, {rows:[{key:'black', value:{} }]});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').stats('price', 'colour').then(function(data) {
+      assert.equal(typeof data[0].value, 'object');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err);
+      assert(false);
+    });
+  });
+
 
 });
