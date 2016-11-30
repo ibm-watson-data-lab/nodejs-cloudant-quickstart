@@ -294,15 +294,62 @@ describe('db', function() {
 
   it('insert - should add a multiple documents', function() {
     var mocks = nock(SERVER)
-      .post('/mydb/_bulk_docs').reply(200, [{ok:true, id:'mydoc1', rev: '1-123' }, {ok:true, id:'mydoc2', rev: '1-123' }]);
+      .post('/mydb/_bulk_docs').reply(200, [{ok:true, id:'mydoc1', rev: '1-123' }, {ok:false, id:'mydoc2',err:'conflict' }]);
     var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
     var nosql = db(cloudant);
     return nosql('mydb').insert([{_id:'mydoc1', a:1},{_id:'mydoc2', a:1}]).then(function(data) {
-      assert.equal(data.length, 2);
-      assert.equal(data[0]._id, 'mydoc1');
-      assert.equal(data[1]._id, 'mydoc2');
+      assert.equal(typeof data, 'object');
+      assert.equal(data.success, 1);
+      assert.equal(data.failed, 1);
       assert(mocks.isDone());
     }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('insert - should fail gracefully', function() {
+    var mocks = nock(SERVER)
+      .post('/mydb/_bulk_docs').reply(500, []);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').insert([{_id:'mydoc1', a:1},{_id:'mydoc2', a:1}]).then(function(data) {
+      assert.equal(typeof data, 'object');
+      assert.equal(data.success, 0);
+      assert.equal(data.failed, 2);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('insert - should add a many documents', function() {
+    var docs = [];
+    for(var i = 0; i<750; i++) {
+      var obj = {_id:i.toString(), a:i};
+      docs.push(obj);
+    }
+    var firstreply = [];
+    for(var i = 0; i<500; i++) {
+      var obj = {ok:true, id:i.toString(), rev:'1-123'};
+      firstreply.push(obj);
+    }
+    var secondreply = [];
+    for(var i = 0; i<250; i++) {
+      var obj = {ok:true, id:i.toString(), rev:'1-123'};
+      secondreply.push(obj);
+    }
+    var mocks = nock(SERVER)
+      .post('/mydb/_bulk_docs').reply(200, firstreply)
+      .post('/mydb/_bulk_docs').reply(200, secondreply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').insert(docs).then(function(data) {
+      assert.equal(typeof data, 'object');
+      assert.equal(data.success, 750);
+      assert.equal(data.failed, 0);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err);
       assert(false);
     });
   });

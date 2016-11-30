@@ -102,11 +102,10 @@ var somecats = [
 animals
   .insert(somecats)
   .then(console.log);
-// [ { ok: true, _id: 'cat1' },
-//   { ok: true, _id: 'cat2' },
-//   { ok: true, _id: 'cat3' },
-//   { ok: true, _id: 'cat4' } ]
+// { ok: true, success: 4, failed: 0 }
 ```
+
+Arrays of documents are written 500 at a time with up to 5 write operations going on in parallel.
 
 ### Fetching documents by id
 
