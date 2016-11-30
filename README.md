@@ -1,12 +1,16 @@
 # simplenosql
 
-An NoSQL store built using Cloudant but hiding some of Cloudant's more advanced features:
+[![Build Status](https://travis-ci.org/glynnbird/simplenosql.svg?branch=master)](https://travis-ci.org/glynnbird/simplenosql)
+
+An NoSQL data store built using Cloudant but hiding some of Cloudant's more advanced features:
 
 - Changes Feeds
 - Replication
 - Design Documents
 - MVCC (revision tokens)
 - Attachments
+
+Get started storing, querying and aggregating your data using *simplenosql*.
 
 ## Installation
 
@@ -22,6 +26,8 @@ Start up the library by passing the URL of your Cloudant database:
 var url = 'https://username:password@myhost.cloudant.com';
 var nosql = require('simplenosql')(url);
 ```
+
+The URL should allow *admin* access to your Cloudant account. 
 
 This library uses Promises so function calls are of this form:
 
