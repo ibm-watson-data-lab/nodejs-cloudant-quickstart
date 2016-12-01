@@ -28,15 +28,22 @@ Start up the library by passing the URL of your Cloudant database:
 
 ```js
 var url = 'https://username:password@myhost.cloudant.com';
-var nosql = require('simplenosql')(url);
+var animals = require('simplenosql')(url, 'animals');
 ```
 
 The URL should allow *admin* access to your Cloudant account. 
 
-This library uses Promises so function calls are of this form:
+Alternatively, a single parameter with the URL of the **database** can be supplied:
 
 ```js
-nosql('animals')
+var url = 'https://username:password@myhost.cloudant.com/animals';
+var animals = require('simplenosql')(url);
+```
+
+This library uses Promises so function calls made on simplenosql object will be of this form:
+
+```js
+animals
   .<FUNCTION CALL HERE>
   .then(function(data) {
     // success
@@ -62,39 +69,16 @@ var data = await db.all();
 Before a database can be used, it must be created once with the `create` function:
 
 ```js
-nosql('animals')
+animals
   .create()
   .then(console.log);
 // {ok:true}
 ```
 
-You may have as many databases as you like:
-
-```js
-nosql('animals').create().then(function() {
-  return nosql('books').create();
-}).then(function() {
-  // done
-});
-
-// or we could use Promise.all
-Promise.all([
-  nosql('animals').create(),
-  nosql('books').create(),
-  nosql('people').create()
-]).then(function() {
-  // done
-});
-
-```
+This creates the database in Cloudant. If you are just connecting to a database that *simplenosql* created for you
+last time, then there is no need for the `create` step.
 
 ### Adding documents
-
-We can keep a reference to a database by assigning it to a variable
-
-```js
-var animals = nosql('animals');
-```
 
 Add a single document to a database with the `insert` function:
 
@@ -412,7 +396,7 @@ Arrays work for grouping too:
 
 ```js
 // get stats on animals' cost & weight - grouped by collection
-nosql('pets')
+animals
   .stats(['cost','weight'], 'collection')
   .then(console.log);
 // [
