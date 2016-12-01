@@ -10,8 +10,8 @@ An NoSQL data store built using Cloudant but hiding some of Cloudant's more adva
 - MVCC (revision tokens)
 - Attachments
 
-The *simplenosql* library concentrates on creating datbases, creating, updating and deleting documents. It also
-allows databases to be queried without creating design documents - this includes creating aggregated views of
+This library concentrates on creating datbases & creating, updating and deleting documents while also
+allowing databases to be queried without creating design documents - this includes creating aggregated views of
 your data grouped by keys e.g. total sales and profit by year and month.
 
 Get started storing, querying and aggregating your data using *simplenosql*.
@@ -49,11 +49,17 @@ nosql('animals')
 Some of the following code samples omit the Promise `then` and `catch` for brevity, 
 but all database operations are asynchronous.
 
+When the `await` JavaScript operator is supported in Node, it will be possible to use this library like so:
+
+```js
+var data = await db.all();
+```
+
 ## CRUD operations
 
 ### Creating a database
 
-Before a database can be used, it must be created once:
+Before a database can be used, it must be created once with the `create` function:
 
 ```js
 nosql('animals')
@@ -69,15 +75,30 @@ nosql('animals').create().then(function() {
   return nosql('books').create();
 }).then(function() {
   // done
-})
+});
+
+// or we could use Promise.all
+Promise.all([
+  nosql('animals').create(),
+  nosql('books').create(),
+  nosql('people').create()
+]).then(function() {
+  // done
+});
+
 ```
 
 ### Adding documents
 
-Add a document to a database with the `insert` function:
+We can keep a reference to a database by assigning it to a variable
 
 ```js
 var animals = nosql('animals');
+```
+
+Add a single document to a database with the `insert` function:
+
+```js
 animals
   .insert({ _id: 'dog1', name:'Bobby', colour:'black', collection:'dogs', cost:45, weight:6.4})
   .then(console.log);
@@ -85,7 +106,7 @@ animals
 ```
 
 Documents have a key field `_id` which must be unique across the database. It can
-either be supplied by you in the object you create or can be omitted and one will be generated for you:
+either be supplied by you in the object you pass in or can be omitted and one will be generated for you:
 
 ```js
 animals
@@ -109,9 +130,11 @@ animals
 // { ok: true, success: 4, failed: 0 }
 ```
 
-Arrays of documents are written 500 at a time with up to 5 write operations going on in parallel.
+Arrays of documents are written in batches of 500 at a time with up to 5 write operations going on in parallel.
 
 ### Fetching documents by id
+
+Retrieve a single document with the `get` function:
 
 ```js
 animals
@@ -120,7 +143,7 @@ animals
 // { _id: 'cat1', name: 'Paws', colour: 'tabby', collection: 'cats', cost:102, weight:2.4 }
 ```
 
-or by supplying multiple document ids:
+or by supplying multiple document ids to get an array of documents in reply:
 
 ```js
 animals
@@ -132,7 +155,7 @@ animals
 
 ### Updating documents
 
-A document can be replaced with a new document by supplying its `_id`:
+A document can be replaced with a new document by supplying its `_id` and the new document body:
 
 ```js
 var id = 'dog1';
@@ -143,8 +166,19 @@ animals
 // {ok:true}
 ```
 
+or by passing in a single object that contains an `_id` in the new body:
+
+```js
+var newdoc = { _id: 'dog1', name:'Bobbie', colour:'black', collection:'dogs', cost:45, weight:6.4};
+animals
+  .update(newdoc)
+  .then(console.log);
+// {ok:true}
+```
+
 Even if the document id doesn't already exist, *simplenosql* will write a new document, so in a sense the `insert`
-function is rather like an "upsert" operation: either update and replace the existing document or create a new one.
+function is rather like an "upsert" operation: either update and replace the existing document or create a new one. 
+For this reason, an `upsert` function also exists that is a synonym of the `update` function.
 
 ### Deleting documents
 
@@ -173,7 +207,8 @@ animals
 //   { _id: 'f03bb0361f1a507d3dc68d0e860675b6', name: 'Sam', colour: 'grey', collection: 'dogs', cost:72, weight: 5.2 } ]
 ```
 
-For larger data sets, the document list can be retrieved in blocks of 100:
+For larger data sets, the document list is retrieved in blocks of 100 and a `skip` option can be used to retrieve
+documents deeper in the data set:
 
 ```js
 // fetch records 300 to 400
@@ -185,6 +220,7 @@ animals.all({skip:300})
 A database can be queried by passing a query object to `query` function:
 
 ```js
+// get animals that are white
 animals
   .query({colour: 'white'})
   .then(console.log);
@@ -192,18 +228,20 @@ animals
 //   { _id: 'cat2', name: 'Fluffy', colour: 'white', collection: 'cats', cost:82, weight:2.1 } ]
 ```
 
-The query can be key/value pairs which are AND'd together:
+where query is key/value pairs that match the source documents. The key/value pairs are AND'd together:
 
 ```js
+// get documents that black in are in the 'cats' collection
 animals
   .query({colour: 'black', collection:'cats'})
   .then(console.log);
 // [ { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats', cost:45, weight:1.8 } ]
 ```
 
-or it can be a full [Cloudant Query Selector](https://docs.cloudant.com/cloudant_query.html#selector-syntax) object.
+or the object can contain [Cloudant Query Selector](https://docs.cloudant.com/cloudant_query.html#selector-syntax) operators:
 
 ```js
+// get animals that are called Paws or that are black
 animals
   .query({ "$or": [ {name:'Paws'}, {colour:'black'} ]})
   .then(console.log);
@@ -214,12 +252,14 @@ animals
 The optional second parameter provides simple sorting when passed a string:
 
 ```js
+// retrieve black animals and sort by name
 animals.query({colour: 'black'}, 'name')
 ```
 
 or multi-dimensional sorting with an array of objects:
 
 ```js
+// get animals that black, sorted by name and cost in reverse order
 animals.query({colour: 'black'}, [{'name:string':'desc'},{'cost:number':'desc'}])
 ```
 
@@ -228,9 +268,12 @@ See [Clouant Query](https://docs.cloudant.com/cloudant_query.html#sort-syntax) d
 The query returns a maximum of 100 documents at a time. The third parameter can be used to page through large result set:
 
 ```js
-animals.query({colour: 'black'}, 'name', 0)  // first 100 results
-animals.query({colour: 'black'}, 'name', 100) // next 100 results
-animals.query({colour: 'black'}, null, 500) // paging without sorting
+// first 100 results
+animals.query({colour: 'black'}, 'name', 0);
+// next 100 results
+animals.query({colour: 'black'}, 'name', 100);
+// paging without sorting
+animals.query({colour: 'black'}, null, 500);
 ```
 
 ## Aggregating data
@@ -249,6 +292,7 @@ animals
 Passing a string to `count` returns the number of occurences of that field's values:
 
 ```js
+// get counts of animals by colour
 animals
   .count('colour')
   .then(console.log);
@@ -266,6 +310,7 @@ Values from deeper within your document can be accessed using object notation:
 Passing an array to `count` causes multi-dimensional counting:
 
 ```js
+// get counts of animals, grouped by colleciton and colour
 animals
   .count(['collection','colour'])
   .then(console.log);
