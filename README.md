@@ -320,7 +320,44 @@ animals
 //  { key: [ 'dogs', 'grey' ], value: 1 } ]
 ```
 
-## Stats
+### Summing
+
+To get totals of values from your documents call the `sum` function passing in the field you would
+like to aggregate:
+
+```js
+// get totals on an animals' cost
+animals
+  .sum('cost')
+  .then(console.log);
+// > [ { key: null, value:  353} ]
+```
+
+```js
+// get stats on animals' cost & weight
+animals
+  .sum(['cost','weight'])
+  .then(console.log);
+// [
+//   { key:null, value: 353 },
+//   { key:null, value: 17.5}
+// ]
+```
+
+The totals can also be grouped by another field by providing a second parameter:
+
+```js
+// get stats on animals' cost - grouped by collection
+animals
+  .sum('cost', 'collection')
+  .then(console.log);
+// [
+//   { key:"cats", value: 281 },
+//   { key:"dogs", value: 72 }
+// ]
+```
+
+### Stats
 
 To get the statistics on values from your documents, call the `stats` function passing in the 
 field you would like statistics on:
@@ -334,7 +371,7 @@ animals
 //    value: { sum: 353, count: 5, min: 45, max: 102, sumsqr: 27041 } } ]
 ```
 
-This also works for an array of fields:
+Multiple values can be analysed using an array of fields:
 
 ```js
 // get stats on animals' cost & weight
