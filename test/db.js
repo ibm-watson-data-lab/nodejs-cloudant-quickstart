@@ -243,7 +243,7 @@ describe('db', function() {
     });
   });
 
-  it('query - should get all documents', function() {
+  it('query - should select documents', function() {
     var reply = {
       docs: [
          { _id: '1', _rev:'1-123', a:1, collection:'dogs'},
@@ -261,6 +261,102 @@ describe('db', function() {
       assert.equal(data[0]._id, '1');
       assert.equal(typeof data[0]._rev, 'undefined');
       assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('query - should sort selected documents', function() {
+    var reply = {
+      docs: [
+         { _id: '1', _rev:'1-123', a:1, collection:'dogs', name:'a'},
+         { _id: '2', _rev:'1-123', a:2, collection:'dogs', name:'b'},
+         { _id: '3', _rev:'1-123', a:3, collection:'dogs', name:'c'},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'name:string':'asc'}]}).reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').query({collection:'dogs'},'name').then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('query - should sort with CQ object', function() {
+    var reply = {
+      docs: [
+         { _id: '3', _rev:'1-123', a:3, collection:'dogs', name:'c'},
+         { _id: '2', _rev:'1-123', a:2, collection:'dogs', name:'b'},
+         { _id: '1', _rev:'1-123', a:1, collection:'dogs', name:'a'},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'name:string':'desc'}]}).reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').query({collection:'dogs'}, [{'name:string':'desc'}]).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '3');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, 3);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('query - should page with sorting', function() {
+    var reply = {
+      docs: [
+         { _id: '100', _rev:'1-123', a:100, collection:'dogs', name:'a'},
+         { _id: '101', _rev:'1-123', a:101, collection:'dogs', name:'b'},
+         { _id: '102', _rev:'1-123', a:102, collection:'dogs', name:'c'},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'name:string':'asc'}], skip:100}).reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').query({collection:'dogs'},'name', 100).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '100');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '100');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('query - should page without sorting', function() {
+    var reply = {
+      docs: [
+         { _id: '100', _rev:'1-123', a:100, collection:'dogs', name:'a'},
+         { _id: '101', _rev:'1-123', a:101, collection:'dogs', name:'b'},
+         { _id: '102', _rev:'1-123', a:102, collection:'dogs', name:'c'},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .post('/mydb/_find',{ selector: { collection:'dogs'}, skip:100}).reply(200, reply);
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').query({collection:'dogs'}, null, 100).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '100');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '100');
       assert(mocks.isDone());
     }).catch(function(err) {
       assert(false);
