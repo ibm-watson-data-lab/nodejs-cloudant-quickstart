@@ -10,6 +10,10 @@ An NoSQL data store built using Cloudant but hiding some of Cloudant's more adva
 - MVCC (revision tokens)
 - Attachments
 
+The *simplenosql* library concentrates on creating datbases, creating, updating and deleting documents. It also
+allows databases to be queried without creating design documents - this includes creating aggregated views of
+your data grouped by keys e.g. total sales and profit by year and month.
+
 Get started storing, querying and aggregating your data using *simplenosql*.
 
 ## Installation
@@ -154,7 +158,7 @@ animals
 // {ok:true}
 ```
 
-## Querying a database
+## Fetching al the documents
 
 All documents can be retrieved with the `all` function:
 
@@ -176,7 +180,9 @@ For larger data sets, the document list can be retrieved in blocks of 100:
 animals.all({skip:300})
 ```
 
-or the list can be queried by passing a query to `query` function:
+## Querying the database
+
+A database can be queried by passing a query object to `query` function:
 
 ```js
 animals
@@ -195,7 +201,7 @@ animals
 // [ { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats', cost:45, weight:1.8 } ]
 ```
 
-or it can be a full Cloudant Query Selector object.
+or it can be a full [Cloudant Query Selector](https://docs.cloudant.com/cloudant_query.html#selector-syntax) object.
 
 ```js
 animals
@@ -203,6 +209,28 @@ animals
   .then(console.log);
 // [ { _id: 'cat1', name: 'Paws', colour: 'tabby', collection: 'cats', cost:102, weight:2.4 },
 //   { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats', cost:45, weight:1.8 } ]
+```
+
+The optional second parameter provides simple sorting when passed a string:
+
+```js
+animals.query({colour: 'black'}, 'name')
+```
+
+or multi-dimensional sorting with an array of objects:
+
+```js
+animals.query({colour: 'black'}, [{'name:string':'desc'},{'cost:number':'desc'}])
+```
+
+See [Clouant Query](https://docs.cloudant.com/cloudant_query.html#sort-syntax) documentation for details on the full sort syntax.
+
+The query returns a maximum of 100 documents at a time. The third parameter can be used to page through large result set:
+
+```js
+animals.query({colour: 'black'}, 'name', 0)  // first 100 results
+animals.query({colour: 'black'}, 'name', 100) // next 100 results
+animals.query({colour: 'black'}, null, 500) // paging without sorting
 ```
 
 ## Aggregating data
