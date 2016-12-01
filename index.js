@@ -1,9 +1,19 @@
+var url = require('url');
 
-module.exports = function(url) {
-
-  // create a cloudant instance that connects to the supplied url
-  // run it in Promises modes
-  var cloudant = require('cloudant')({url: url, plugin:'promises'});
-
-  return require('./lib/db.js')(cloudant);  
+module.exports = function(u, dbname) {
+  var parsed = url.parse(u);
+  if (!parsed.hostname || !parsed.protocol) {
+    throw new Error('invalid url');
+  }
+  if (parsed.pathname === '/' && !dbname) {
+    throw new Error('no database name provided');
+  }
+  if (!dbname) {
+    dbname = parsed.pathname.replace(/^\//,'');
+  } 
+  delete parsed.pathname;
+  delete parsed.path;
+  u = url.format(parsed).replace(/\/$/,'');
+  console.log(u,dbname)
+  return require('./lib/db.js')(u, dbname);  
 };

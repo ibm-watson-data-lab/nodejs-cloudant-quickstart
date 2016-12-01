@@ -1,6 +1,6 @@
 {
   "name": "simplenosql",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "Simple NoSQL library",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,8 @@
   "homepage": "https://github.com/glynnbird/simple-nosql#readme",
   "dependencies": {
     "async": "^2.1.4",
-    "cloudant": "^1.6.2"
+    "request": "^2.79.0",
+    "request-promise-native": "^1.0.3"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
