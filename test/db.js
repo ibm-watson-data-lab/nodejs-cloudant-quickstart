@@ -24,6 +24,7 @@ describe('db', function() {
     assert(typeof d.query, 'function');
     assert(typeof d.insert, 'function');
     assert(typeof d.update, 'function');
+    assert(typeof d.upsert, 'function');
     assert(typeof d.get, 'function');
     assert(typeof d.del, 'function');
     assert(typeof d.delete, 'function');
@@ -459,6 +460,21 @@ describe('db', function() {
     var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
     var nosql = db(cloudant);
     return nosql('mydb').update(thedoc._id, {a:2, b:2}).then(function(data) {
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('update - should update a document with single param', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var thedoc2 = {  a:2, b:3, _rev: '1-123', _id: 'myddoc'};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb').reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
+    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
+    var nosql = db(cloudant);
+    return nosql('mydb').upsert(thedoc2).then(function(data) {
       assert(mocks.isDone());
     }).catch(function(err) {
       assert(false);
