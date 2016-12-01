@@ -1,6 +1,7 @@
 var assert = require('assert');
 var ddoc = require('../lib/ddoc.js');
 var SERVER = 'https://myaccount.cloudant.com';
+var url = SERVER + '/mydb';
 var nock = require('nock');
 
 describe('ddoc', function() {
@@ -18,9 +19,7 @@ describe('ddoc', function() {
     var thedoc = { _id: '_design/myddoc', _rev: '1-123', a:1, b:2 };
     var mocks = nock(SERVER)
       .get('/mydb/' + thedoc._id).reply(200, thedoc);
-    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
-    var db = cloudant.db.use('mydb');
-    var d = ddoc(db);
+    var d = ddoc(url);
     return d.get(thedoc._id).then(function(data) {
       assert.equal(typeof data, 'object');
       assert.deepEqual(data, thedoc);
@@ -35,9 +34,7 @@ describe('ddoc', function() {
     var id = '_design/myid';
     var mocks = nock(SERVER)
       .get('/mydb/' + id).reply(404, reply);
-    var cloudant = require('cloudant')( {url : SERVER, plugin: 'promises'});
-    var db = cloudant.db.use('mydb');
-    var d = ddoc(db);
+    var d = ddoc(url);
     return d.get(id).then(function(data) {
       assert.equal(typeof data, 'object');
       assert.equal(data._id, id);

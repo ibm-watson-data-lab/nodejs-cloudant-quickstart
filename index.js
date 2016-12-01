@@ -1,9 +1,12 @@
+var url = require('url');
 
-module.exports = function(url) {
-
-  // create a cloudant instance that connects to the supplied url
-  // run it in Promises modes
-  var cloudant = require('cloudant')({url: url, plugin:'promises'});
-
-  return require('./lib/db.js')(cloudant);  
+module.exports = function(u) {
+  var parsed = url.parse(u);
+  if (!parsed.hostname || !parsed.protocol) {
+    throw new Error('invalid url');
+  }
+  delete parsed.pathname;
+  delete parsed.path;
+  u = url.format(parsed);
+  return require('./lib/db.js')(u);  
 };
