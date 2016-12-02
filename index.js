@@ -14,6 +14,5 @@ module.exports = function(u, dbname) {
   delete parsed.pathname;
   delete parsed.path;
   u = url.format(parsed).replace(/\/$/,'');
-  console.log(u,dbname)
   return require('./lib/db.js')(u, dbname);  
 };
