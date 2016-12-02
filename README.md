@@ -14,6 +14,9 @@ This library concentrates on creating datbases & creating, updating and deleting
 allowing databases to be queried without creating design documents - this includes creating aggregated views of
 your data grouped by keys e.g. total sales and profit by year and month.
 
+The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON
+structures are simplified.
+
 Get started storing, querying and aggregating your data using *simplenosql*.
 
 ## Installation
@@ -270,7 +273,7 @@ The number of documents in a database can be obtained with the `count` function:
 animals
   .count()
   .then(console.log);
-// [ { key: null, value: 5 } ]
+// 5
 ```
 
 Passing a string to `count` returns the number of occurences of that field's values:
@@ -280,10 +283,7 @@ Passing a string to `count` returns the number of occurences of that field's val
 animals
   .count('colour')
   .then(console.log);
-// [ { key: 'black', value: 1 },
-//  { key: 'grey', value: 1 },
-//  { key: 'tabby', value: 1 },
-//  { key: 'white', value: 2 } ]
+// { black: 1, grey: 1, tabby: 1, white: 2 }
 ```
 
 Values from deeper within your document can be accessed using object notation:
@@ -298,10 +298,10 @@ Passing an array to `count` causes multi-dimensional counting:
 animals
   .count(['collection','colour'])
   .then(console.log);
-// [ { key: [ 'cats', 'black' ], value: 1 },
-//  { key: [ 'cats', 'tabby' ], value: 1 },
-//  { key: [ 'cats', 'white' ], value: 2 },
-//  { key: [ 'dogs', 'grey' ], value: 1 } ]
+// { 'cats,black': 1,
+//   'cats,tabby': 1,
+//   'cats,white': 2,
+//   'dogs,grey': 1 }
 ```
 
 ### Summing
@@ -314,7 +314,7 @@ like to aggregate:
 animals
   .sum('cost')
   .then(console.log);
-// > [ { key: null, value:  353} ]
+// 353
 ```
 
 ```js
@@ -322,10 +322,7 @@ animals
 animals
   .sum(['cost','weight'])
   .then(console.log);
-// [
-//   { key:null, value: 353 },
-//   { key:null, value: 17.5}
-// ]
+// { cost: 353, weight: 17.5 }
 ```
 
 The totals can also be grouped by another field by providing a second parameter:
@@ -335,10 +332,7 @@ The totals can also be grouped by another field by providing a second parameter:
 animals
   .sum('cost', 'collection')
   .then(console.log);
-// [
-//   { key:"cats", value: 281 },
-//   { key:"dogs", value: 72 }
-// ]
+// { cats: 281, dogs: 72 }
 ```
 
 ### Stats
@@ -351,8 +345,7 @@ field you would like statistics on:
 animals
   .stats('cost')
   .then(console.log);
-// > [ { key: null,
-//    value: { sum: 353, count: 5, min: 45, max: 102, sumsqr: 27041 } } ]
+// { sum: 353, count: 5, min: 45, max: 102, mean: 70.6, variance: 423.840, stddev: 20.587 }
 ```
 
 Multiple values can be analysed using an array of fields:
@@ -362,15 +355,10 @@ Multiple values can be analysed using an array of fields:
 animals
   .stats(['cost','weight'])
   .then(console.log);
-// [
-//   { 
-//     "key":null,
-//     "value":[
-//        {"sum":353,"count":5,"min":45,"max":102,"sumsqr":27041},
-//        {"sum":17.5,"count":5,"min":1.8,"max":6,"sumsqr":76.45}
-//     ]
-//   }
-// ]
+// { 
+//   cost:  { sum: 353, count: 5, min: 45,max: 102, mean: 70.6, variance: 423.840, stddev: 20.587 }
+//   weight:  { sum: 17.5, count: 5, min: 1.8, max: 6, mean: 3.5, variance: 3.040, stddev: 1.7435 } 
+// }
 ```
 
 The stats can also be grouped by another field by providing a second parameter:
@@ -380,16 +368,10 @@ The stats can also be grouped by another field by providing a second parameter:
 animals
   .stats('cost', 'collection')
   .then(console.log);
-// [
-//   {
-//     "key":"cats",
-//      "value": {"sum":281,"count":4,"min":45,"max":102,"sumsqr":21857}
-//   },
-//   {
-//     "key":"dogs",
-//     "value":{"sum":72,"count":1,"min":72,"max":72,"sumsqr":5184}
-//   }
-// ]
+// { 
+//   cats: { sum: 281, count: 4, min: 45, max: 102, mean: 70.25, variance: 529.1875, stddev: 23.004 },
+//   dogs: { sum: 72, count: 1,  min: 72, max: 72, mean: 72, variance: 0, stddev: 0 } 
+// }
 ```
 
 Arrays work for grouping too:
@@ -399,20 +381,14 @@ Arrays work for grouping too:
 animals
   .stats(['cost','weight'], 'collection')
   .then(console.log);
-// [
-//   {
-//     "key":"cats",
-//     "value":[
-//       {"sum":281,"count":4,"min":45,"max":102,"sumsqr":21857},
-//       {"sum":12.3,"count":4,"min":1.8,"max":6,"sumsqr":49.410000000000004}
-//     ]
+// { 
+//   cats: {
+//     cost: { sum: 281, count: 4, min: 45, max: 102, mean: 70.25, variance: 529.1875, stddev: 23.004 },
+//     weight:  { sum: 12.3, count: 4, min: 1.8, max: 6, mean: 3.075, variance: 2.896, stddev: 1.7020 } 
 //   },
-//   {
-//     "key":"dogs",
-//     "value":[
-//       {"sum":72,"count":1,"min":72,"max":72,"sumsqr":5184},
-//       {"sum":5.2,"count":1,"min":5.2,"max":5.2,"sumsqr":27.040000000000003}
-//     ]
-//   }
-// ] 
+//   dogs: { 
+//      cost: { sum: 72, count: 1,  min: 72, max: 72, mean: 72, variance: 0, stddev: 0 },
+//      weight: { sum: 5.2, count: 1, min: 5.2, max: 5.2, mean: 5.2, variance: 0, stddev: 0 } 
+//   } 
+// }
 ```
