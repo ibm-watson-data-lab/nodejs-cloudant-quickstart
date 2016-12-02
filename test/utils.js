@@ -67,6 +67,11 @@ describe('utils', function() {
     assert(typeof d[1].rev, 'undefined');
     assert.equal(d[1]._id, 'x');
     assert.equal(d[1].property, 'z');
-  })
+  });
+
+  it('should leave a string untouched', function() {
+    var d = utils.simplify('dog');
+    assert.equal(d, 'dog');
+  });
 
 });
