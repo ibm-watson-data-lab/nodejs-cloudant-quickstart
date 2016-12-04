@@ -240,27 +240,32 @@ The optional second parameter provides simple sorting when passed a string:
 
 ```js
 // retrieve black animals and sort by name
-animals.query({colour: 'black'}, 'name')
+animals.query({colour: 'black'}, { sort: {'name:string':'asc'}})
 ```
 
 or multi-dimensional sorting with an array of objects:
 
 ```js
 // get animals that black, sorted by name and cost in reverse order
-animals.query({colour: 'black'}, [{'name:string':'desc'},{'cost:number':'desc'}])
+animals.query({colour: 'black'}, {sort: [{'name:string':'desc'},{'cost:number':'desc'}]} );
 ```
 
 See [Clouant Query](https://docs.cloudant.com/cloudant_query.html#sort-syntax) documentation for details on the full sort syntax.
 
-The query returns a maximum of 100 documents at a time. The third parameter can be used to page through large result set:
+The optional second parameter is an object that can contain one or more of:
+
+- sort - an array of sort parameters e.g. `[{'name:string':'desc'},{'cost:number':'desc'}]`
+- limit - the number of search results to return. Defaults to 100
+- skip - the number of results to skip in the result set. Defaults to 0
+- fields - either a string representing the document property to return or an array of properties e.g. `['name','cost','collection']`. If omitted, the whole document is returned. 
+
+e.g.
 
 ```js
-// first 100 results
-animals.query({colour: 'black'}, 'name', 0);
-// next 100 results
-animals.query({colour: 'black'}, 'name', 100);
-// paging without sorting
-animals.query({colour: 'black'}, null, 500);
+// animal names, 100 to 200
+animals.query({colour: 'black'}, { fields: 'name', skip: 100});
+// name and cost of cats sorted by price - highest first
+animals.query({collection: 'cats'}, { fields: ['name','cost'], sort: { 'cost:number': 'desc'}});
 ```
 
 ## Aggregating data

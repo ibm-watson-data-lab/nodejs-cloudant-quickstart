@@ -254,7 +254,7 @@ describe('db', function() {
     var mocks = nock(SERVER)
       .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'name:string':'asc'}]}).reply(200, reply);
 
-    return nosql.query({collection:'dogs'},'name').then(function(data) {
+    return nosql.query({collection:'dogs'},{ sort:[{'name:string':'asc'}] }).then(function(data) {
       assert.equal(data.length, 3);
       assert.equal(typeof data[0], 'object');
       assert.equal(data[0]._id, '1');
@@ -262,6 +262,7 @@ describe('db', function() {
       assert.equal(data[0].a, '1');
       assert(mocks.isDone());
     }).catch(function(err) {
+      console.log(err);
       assert(false);
     });
   });
@@ -277,7 +278,7 @@ describe('db', function() {
     var mocks = nock(SERVER)
       .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'name:string':'desc'}]}).reply(200, reply);
 
-    return nosql.query({collection:'dogs'}, [{'name:string':'desc'}]).then(function(data) {
+    return nosql.query({collection:'dogs'}, {sort: [{'name:string':'desc'}]}).then(function(data) {
       assert.equal(data.length, 3);
       assert.equal(typeof data[0], 'object');
       assert.equal(data[0]._id, '3');
@@ -298,9 +299,9 @@ describe('db', function() {
       ]
     };
     var mocks = nock(SERVER)
-      .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'name:string':'asc'}], skip:100}).reply(200, reply);
+      .post('/mydb/_find',{ selector: { collection:'dogs'}, limit:100,  sort:[{'name:string':'asc'}], skip:100, fields: ['name']}).reply(200, reply);
 
-    return nosql.query({collection:'dogs'},'name', 100).then(function(data) {
+    return nosql.query({collection:'dogs'},{ fields:'name', sort:[{'name:string':'asc'}], skip:100}).then(function(data) {
       assert.equal(data.length, 3);
       assert.equal(typeof data[0], 'object');
       assert.equal(data[0]._id, '100');
@@ -308,27 +309,28 @@ describe('db', function() {
       assert.equal(data[0].a, '100');
       assert(mocks.isDone());
     }).catch(function(err) {
+      console.log(err);
       assert(false);
     });
   });
 
-  it('query - should page without sorting', function() {
+  it('query - should allow simple sorting', function() {
     var reply = {
       docs: [
-         { _id: '100', _rev:'1-123', a:100, collection:'dogs', name:'a'},
+         { _id: '100', _rev:'1-123', a:102, collection:'dogs', name:'a'},
          { _id: '101', _rev:'1-123', a:101, collection:'dogs', name:'b'},
-         { _id: '102', _rev:'1-123', a:102, collection:'dogs', name:'c'},
+         { _id: '102', _rev:'1-123', a:100, collection:'dogs', name:'c'},
       ]
     };
     var mocks = nock(SERVER)
-      .post('/mydb/_find',{ selector: { collection:'dogs'}, skip:100}).reply(200, reply);
+      .post('/mydb/_find',{ selector: { collection:'dogs'}, sort:[{'a:number':'desc'}], fields: ['a','collection']}).reply(200, reply);
 
-    return nosql.query({collection:'dogs'}, null, 100).then(function(data) {
+    return nosql.query({collection:'dogs'},{fields: ['a','collection'], sort: {'a:number':'desc'}}).then(function(data) {
       assert.equal(data.length, 3);
       assert.equal(typeof data[0], 'object');
       assert.equal(data[0]._id, '100');
       assert.equal(typeof data[0]._rev, 'undefined');
-      assert.equal(data[0].a, '100');
+      assert.equal(data[0].a, '102');
       assert(mocks.isDone());
     }).catch(function(err) {
       assert(false);
