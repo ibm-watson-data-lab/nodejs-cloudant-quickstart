@@ -397,3 +397,11 @@ animals
 //   } 
 // }
 ```
+
+## Debugging
+
+To see the HTTP requests being made set an environment variable `DEBUG` before running your code:
+
+```sh
+DEBUG=simplenosql node myapp.js
+```
