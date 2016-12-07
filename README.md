@@ -163,7 +163,7 @@ animals
 // {ok:true}
 ```
 
-Even if the document id doesn't already exist, *simplenosql* will write a new document, so in a sense the `insert`
+Even if the document id doesn't already exist, *simplenosql* will write a new document, so in a sense the `update`
 function is rather like an "upsert" operation: either update and replace the existing document or create a new one. 
 For this reason, an `upsert` function also exists that is a synonym of the `update` function.
 
@@ -179,7 +179,7 @@ animals
 // {ok:true}
 ```
 
-## Fetching al the documents
+## Fetching all the documents
 
 All documents can be retrieved with the `all` function:
 
@@ -194,7 +194,7 @@ animals
 //   { _id: 'f03bb0361f1a507d3dc68d0e860675b6', name: 'Sam', colour: 'grey', collection: 'dogs', cost:72, weight: 5.2 } ]
 ```
 
-For larger data sets, the document list is retrieved in blocks of 100 and a `skip` option can be used to retrieve
+For larger data sets, the document list is retrieved in blocks of 100 and a `skip` option can be supplied to retrieve
 documents deeper in the data set:
 
 ```js
@@ -236,17 +236,17 @@ animals
 //   { _id: 'cat4', name: 'Mittens', colour: 'black', collection: 'cats', cost:45, weight:1.8 } ]
 ```
 
-The optional second parameter provides simple sorting when passed a string:
+The optional second parameter can be used for sorting with a `sort` property:
 
 ```js
-// retrieve black animals and sort by name
+// retrieve black animals and sort by name, in ascending order
 animals.query({colour: 'black'}, { sort: {'name:string':'asc'}})
 ```
 
 or multi-dimensional sorting with an array of objects:
 
 ```js
-// get animals that black, sorted by name and cost in reverse order
+// get animals that are black, sorted by name and cost in reverse order
 animals.query({colour: 'black'}, {sort: [{'name:string':'desc'},{'cost:number':'desc'}]} );
 ```
 
@@ -322,6 +322,8 @@ animals
 // 353
 ```
 
+The sum of multiple properties can be calculated by passing an array of strings:
+
 ```js
 // get stats on animals' cost & weight
 animals
@@ -333,11 +335,20 @@ animals
 The totals can also be grouped by another field by providing a second parameter:
 
 ```js
-// get stats on animals' cost - grouped by collection
+// get sum of animals' cost, grouped by collection
 animals
   .sum('cost', 'collection')
   .then(console.log);
 // { cats: 281, dogs: 72 }
+
+// get sum of animals' cost & weight, grouped by collection
+animals
+  .sum(['cost','weight'],'collection')
+  .then(console.log);
+// { 
+//   cats: { cost: 281, weight: 12.3 },
+//   dogs: { cost: 72, weight: 5.2 } 
+// }
 ```
 
 ### Stats
@@ -405,3 +416,27 @@ To see the HTTP requests being made set an environment variable `DEBUG` before r
 ```sh
 DEBUG=simplenosql node myapp.js
 ```
+
+## Notes
+
+This library uses Cloudant as its storage engine. It hides some of the complexities of working with Cloudant but if you intend
+to use Cloudant in earnest, you may want to be aware of some of the compromises and design decisions that this library has 
+made to make it simpler for a first-time user.
+
+Please note:
+
+- the library hides `_rev` tokens from you. They still exist, but you don't see them in returned documents or API calls, nor are
+they required when updating or deleting documents. You may want to familiarise yourself with [Cloudant's Multi-version Concurrency Control](https://docs.cloudant.com/mvcc.html)
+mechanism to prevent loss of data when the same document is updated in different ways at the same time in a distributed system.
+- when this library creates a database with the `create` function, it also creates a [Cloudant Query](https://docs.cloudant.com/cloudant_query.html)
+index instructing Cloudant to index all fields with a Lucene-based index. This is convenient but probably not what you want to do in 
+a production system. It's much better to only index the fields you need.
+- it is still possible to get document conflicts when using this library. Be careful when updating or deleting documents.
+- calls to the count/sum/stats function result in a [Design Document](https://docs.cloudant.com/design_documents.html) being generated for 
+every combination of keys/values you supply. In a production system, [MapReduce](https://docs.cloudant.com/creating_views.html) views are
+usually grouped together with several views per design document. 
+- with very large data sets, it's not efficient to page through the result set with the `all` function using 'skip' and 'limit' parameters. 
+It's better to [use the startkey_docid parameter](http://glynnbird.tumblr.com/post/56617320962/iterating-over-all-couchdb-documents-the-nice)
+
+It's anticipated that you start using Cloudant with this library and switch to the [Official Cloudant Node.js library](https://github.com/cloudant/nodejs-cloudant)
+when you're ready to build some production code.
