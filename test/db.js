@@ -519,14 +519,14 @@ describe('db', function() {
     });
   });
 
-  it('sum - should calculate stats for a field grouped by an array of values', function() {
+  it('sum - should calculate sum for a field grouped by an array of values', function() {
     var mocks = nock(SERVER)
       .get('/mydb/_design/76a86ee8e58e7ab9ab745ef0a1bdb1ab62a808fe').reply(404, {ok: false, err: 'not_found',reason:'missing'})
       .post('/mydb').reply(200, {ok:true, id:'_design/76a86ee8e58e7ab9ab745ef0a1bdb1ab62a808fe', rev:'1-123'})
       .get('/mydb/_design/76a86ee8e58e7ab9ab745ef0a1bdb1ab62a808fe/_view/76a86ee8e58e7ab9ab745ef0a1bdb1ab62a808fe?group=true').reply(200, {rows:[{key:['dogs','black'], value:12 }]});
 
     return nosql.sum('price', ['collection', 'colour']).then(function(data) {
-      assert.deepEqual(data, { "dogs,black" : 12 });
+      assert.deepEqual(data, { "dogs/black" : 12 });
       assert(mocks.isDone());
     }).catch(function(err) {
       console.log(err);
@@ -596,7 +596,23 @@ describe('db', function() {
 
     return nosql.stats('price', ['collection', 'colour']).then(function(data) {
       assert.equal(typeof data, 'object');
-      assert.equal(typeof data['dog,black'], 'object')
+      assert.equal(typeof data['dog/black'], 'object')
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err);
+      assert(false);
+    });
+  });
+
+  it('stats - should calculate stats for non-string keys', function() {
+    var mocks = nock(SERVER)
+      .get('/mydb/_design/2aab2b27fc0f3dca6ed3c13f7f4e0a11b5754947').reply(404, {ok: false, err: 'not_found',reason:'missing'})
+      .post('/mydb').reply(200, {ok:true, id:'_design/2aab2b27fc0f3dca6ed3c13f7f4e0a11b5754947', rev:'1-123'})
+      .get('/mydb/_design/2aab2b27fc0f3dca6ed3c13f7f4e0a11b5754947/_view/2aab2b27fc0f3dca6ed3c13f7f4e0a11b5754947?group=true').reply(200, {rows:[{key:40, value:{ sum: 281, count: 4, min: 45, max: 102, sumsqr: 21857 } }]});
+
+    return nosql.stats('price', 'weight').then(function(data) {
+      assert.equal(typeof data, 'object');
+      assert.equal(typeof data['40'], 'object')
       assert(mocks.isDone());
     }).catch(function(err) {
       console.log(err);

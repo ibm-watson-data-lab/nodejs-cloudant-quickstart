@@ -303,10 +303,10 @@ Passing an array to `count` causes multi-dimensional counting:
 animals
   .count(['collection','colour'])
   .then(console.log);
-// { 'cats,black': 1,
-//   'cats,tabby': 1,
-//   'cats,white': 2,
-//   'dogs,grey': 1 }
+// { 'cats/black': 1,
+//   'cats/tabby': 1,
+//   'cats/white': 2,
+//   'dogs/grey': 1 }
 ```
 
 ### Summing
