@@ -437,6 +437,9 @@ every combination of keys/values you supply. In a production system, [MapReduce]
 usually grouped together with several views per design document. 
 - with very large data sets, it's not efficient to page through the result set with the `all` function using 'skip' and 'limit' parameters. 
 It's better to [use the startkey_docid parameter](http://glynnbird.tumblr.com/post/56617320962/iterating-over-all-couchdb-documents-the-nice)
+- when using this library to communicate with CouchDB 2.0, the `create` function will throw an error because it will fail to create a 
+Cloudant Query (Mango) text index. After that, the other functions work although the `query` function will be slow because of the lack
+of an index to support it.
 
 It's anticipated that you start using Cloudant with this library and switch to the [Official Cloudant Node.js library](https://github.com/cloudant/nodejs-cloudant)
 when you're ready to build some production code.
