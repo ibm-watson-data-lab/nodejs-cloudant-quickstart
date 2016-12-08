@@ -6,16 +6,15 @@ An NoSQL data store built using Cloudant but hiding some of Cloudant's more adva
 
 - Changes Feeds
 - Replication
-- Design Documents
+- Design Documents & MapReduce
 - MVCC (revision tokens)
 - Attachments
 
-This library concentrates on creating datbases & creating, updating and deleting documents while also
-allowing databases to be queried without creating design documents - this includes creating aggregated views of
-your data grouped by keys e.g. total sales and profit by year and month.
+This library concentrates on creating datbases and creating, updating & deleting documents. It also
+allows the data to be queried and aggregated easily without ever seeing a design document databases.
 
 The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON
-structures are simplified.
+structures are pared down to a minimum.
 
 Get started storing, querying and aggregating your data using *simplenosql*.
 
