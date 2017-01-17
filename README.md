@@ -1,6 +1,6 @@
-# simplenosql
+# silverlining
 
-[![Build Status](https://travis-ci.org/glynnbird/simplenosql.svg?branch=master)](https://travis-ci.org/glynnbird/simplenosql)
+[![Build Status](https://travis-ci.org/glynnbird/silverlining.svg?branch=master)](https://travis-ci.org/glynnbird/silverlining)
 
 An NoSQL data store built using Cloudant but hiding some of Cloudant's more advanced features:
 
@@ -16,12 +16,12 @@ allows the data to be queried and aggregated easily without ever seeing a design
 The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON
 structures are pared down to a minimum.
 
-Get started storing, querying and aggregating your data using *simplenosql*.
+Get started storing, querying and aggregating your data using *silverlining*.
 
 ## Installation
 
 ```sh
-npm install --save simplenosql
+npm install --save silverlining
 ```
 
 ## Using in your application
@@ -30,7 +30,7 @@ Start up the library by passing the URL of your Cloudant database:
 
 ```js
 var url = 'https://username:password@myhost.cloudant.com';
-var animals = require('simplenosql')(url, 'animals');
+var animals = require('silverlining')(url, 'animals');
 ```
 
 The URL should allow *admin* access to your Cloudant account. 
@@ -39,10 +39,10 @@ Alternatively, a single parameter with the URL of the **database** can be suppli
 
 ```js
 var url = 'https://username:password@myhost.cloudant.com/animals';
-var animals = require('simplenosql')(url);
+var animals = require('silverlining')(url);
 ```
 
-This library uses Promises so function calls made on simplenosql object will be of this form:
+This library uses Promises so function calls made on silverlining object will be of this form:
 
 ```js
 animals
@@ -77,7 +77,7 @@ animals
 // {ok:true}
 ```
 
-This creates the database in Cloudant. If you are just connecting to a database that *simplenosql* created for you
+This creates the database in Cloudant. If you are just connecting to a database that *silverlining* created for you
 last time, then there is no need for the `create` step.
 
 ### Adding documents
@@ -162,7 +162,7 @@ animals
 // {ok:true}
 ```
 
-Even if the document id doesn't already exist, *simplenosql* will write a new document, so in a sense the `update`
+Even if the document id doesn't already exist, *silverlining* will write a new document, so in a sense the `update`
 function is rather like an "upsert" operation: either update and replace the existing document or create a new one. 
 For this reason, an `upsert` function also exists that is a synonym of the `update` function.
 
@@ -413,7 +413,7 @@ animals
 To see the HTTP requests being made set an environment variable `DEBUG` before running your code:
 
 ```sh
-DEBUG=simplenosql node myapp.js
+DEBUG=silverlining node myapp.js
 ```
 
 ## Notes

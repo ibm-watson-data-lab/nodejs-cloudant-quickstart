@@ -1,5 +1,5 @@
 {
-  "name": "simplenosql",
+  "name": "silverlining",
   "version": "1.17.0",
   "description": "Simple NoSQL library",
   "main": "index.js",
@@ -9,17 +9,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/glynnbird/simple-nosql.git"
+    "url": "git+https://github.com/glynnbird/silverlining.git"
   },
   "keywords": [
-    "nosql"
+    "nosql",
+    "cloudant"
   ],
   "author": "Glynn Bird <glynn.bird@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/glynnbird/simple-nosql/issues"
+    "url": "https://github.com/glynnbird/silverlining/issues"
   },
-  "homepage": "https://github.com/glynnbird/simple-nosql#readme",
+  "homepage": "https://github.com/glynnbird/silverlining#readme",
   "dependencies": {
     "async": "^2.1.4",
     "request": "^2.79.0",
