@@ -11,12 +11,12 @@ An NoSQL data store built using Cloudant but hiding some of Cloudant's more adva
 - Attachments
 
 This library concentrates on creating datbases and creating, updating & deleting documents. It also
-allows the data to be queried and aggregated easily without ever seeing a design document databases.
+allows the data to be queried and aggregated easily without ever seeing a design document.
 
 The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON
 structures are pared down to a minimum.
 
-Get started storing, querying and aggregating your data using *silverlining*.
+Get started storing, querying and aggregating your data using *silverlining*! Extra points if you can somehow use Anisble to create a 'silverlining playbook'.
 
 ## Installation
 
