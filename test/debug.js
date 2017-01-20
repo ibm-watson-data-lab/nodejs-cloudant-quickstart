@@ -7,7 +7,7 @@ describe('debug', function() {
 
   it('should work with debug on', function(done) {
     var reply = { };
-    process.env.DEBUG = 'simplenosql'
+    process.env.DEBUG = 'silverlining'
     var mocks = nock(SERVER)
       .get('/' + mydb).reply(200, reply);
     var db = require('../index.js')(SERVER, mydb);
