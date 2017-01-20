@@ -78,6 +78,12 @@ animals
 
 This creates the database in Cloudant. If you are just connecting to a database that *silverlining* created for you last time, then there is no need for the `create` step.
 
+The `create` function both creates a database and also instructs Cloudant to index all fields of any documents that are added. This allows queries to be asked of any field in the database. If this behaviour is not required, then simply pass in `false` in the `indexAll` option e.g.
+
+```js
+animals.create({indexAll: false})
+```
+
 ### Adding documents
 
 Add a single document to a database with the `insert` function:
