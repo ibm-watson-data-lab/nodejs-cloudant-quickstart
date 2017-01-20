@@ -1,6 +1,6 @@
 {
   "name": "silverlining",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Simple NoSQL library",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/glynnbird/silverlining.git"
+    "url": "git+https://github.com/ibm-cds-labs/silverlining.git"
   },
   "keywords": [
     "nosql",
@@ -18,9 +18,9 @@
   "author": "Glynn Bird <glynn.bird@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/glynnbird/silverlining/issues"
+    "url": "https://github.com/ibm-cds-labs/silverlining/issues"
   },
-  "homepage": "https://github.com/glynnbird/silverlining#readme",
+  "homepage": "https://github.com/ibm-cds-labs/silverlining#readme",
   "dependencies": {
     "async": "^2.1.4",
     "request": "^2.79.0",
