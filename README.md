@@ -2,23 +2,23 @@
 
 [![Build Status](https://travis-ci.org/ibm-cds-labs/silverlining.svg?branch=master)](https://travis-ci.org/ibm-cds-labs/silverlining)
 
-An NoSQL data store built using Cloudant but hiding some of Cloudant's more advanced features:
+An simple Node.js library that can be used to interact with the Cloudant NoSQL database to allow:
 
-- Changes Feeds
-- Replication
-- Design Documents & MapReduce
-- MVCC (revision tokens)
-- Attachments
+- Creation of databases
+- Create/Read/Update/Delete of documents
+- Bulk insert of arrays of documents
+- Queries
+- Aggregation for counting, summing and statistics
 
-This library concentrates on creating datbases and creating, updating & deleting documents. It also
-allows the data to be queried and aggregated easily without ever seeing a design document.
+The *silverlining* library hides the complexity from you so you never see a revision token or a design document.
 
-The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON
-structures are pared down to a minimum.
+The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON structures are pared down to a minimum.
 
-Get started storing, querying and aggregating your data using *silverlining*! Extra points if you can somehow use Anisble to create a 'silverlining playbook'.
+Get started storing, querying and aggregating your data using *silverlining*! 
 
 ## Installation
+
+Build *silverlining* into your own Node.js project with: 
 
 ```sh
 npm install --save silverlining
@@ -42,7 +42,7 @@ var url = 'https://username:password@myhost.cloudant.com/animals';
 var animals = require('silverlining')(url);
 ```
 
-This library uses Promises so function calls made on silverlining object will be of this form:
+This library uses Promises so function calls made on the *silverlining* object will be of this form:
 
 ```js
 animals
@@ -55,8 +55,7 @@ animals
   });
 ```
 
-Some of the following code samples omit the Promise `then` and `catch` for brevity, 
-but all database operations are asynchronous.
+Some of the following code samples omit the Promise `then` and `catch` for brevity, but all database operations are asynchronous.
 
 When the `await` JavaScript operator is supported in Node, it will be possible to use this library like so:
 
@@ -77,8 +76,7 @@ animals
 // {ok:true}
 ```
 
-This creates the database in Cloudant. If you are just connecting to a database that *silverlining* created for you
-last time, then there is no need for the `create` step.
+This creates the database in Cloudant. If you are just connecting to a database that *silverlining* created for you last time, then there is no need for the `create` step.
 
 ### Adding documents
 
@@ -91,8 +89,7 @@ animals
 // { ok: true, _id: 'dog1' }
 ```
 
-Documents have a key field `_id` which must be unique across the database. It can
-either be supplied by you in the object you pass in or can be omitted and one will be generated for you:
+Documents have a key field `_id` which must be unique across the database. It can either be supplied by you in the object you pass in or can be omitted and one will be generated for you:
 
 ```js
 animals
@@ -162,9 +159,7 @@ animals
 // {ok:true}
 ```
 
-Even if the document id doesn't already exist, *silverlining* will write a new document, so in a sense the `update`
-function is rather like an "upsert" operation: either update and replace the existing document or create a new one. 
-For this reason, an `upsert` function also exists that is a synonym of the `update` function.
+Even if the document id doesn't already exist, *silverlining* will write a new document, so in a sense the `update` function is rather like an "upsert" operation: either update and replace the existing document or create a new one. For this reason, an `upsert` function also exists that is a synonym of the `update` function.
 
 ### Deleting documents
 
@@ -203,7 +198,7 @@ animals.all({skip:300})
 
 ## Querying the database
 
-A database can be queried by passing a query object to `query` function:
+A database can be queried by passing a object to the `query` function:
 
 ```js
 // get animals that are white
@@ -214,7 +209,7 @@ animals
 //   { _id: 'cat2', name: 'Fluffy', colour: 'white', collection: 'cats', cost:82, weight:2.1 } ]
 ```
 
-where query is key/value pairs that match the source documents. The key/value pairs are AND'd together:
+where the query object contains key/value pairs that match the source documents. The key/value pairs are AND'd together:
 
 ```js
 // get documents that black in are in the 'cats' collection
@@ -298,7 +293,7 @@ Values from deeper within your document can be accessed using object notation:
 Passing an array to `count` causes multi-dimensional counting:
 
 ```js
-// get counts of animals, grouped by colleciton and colour
+// get counts of animals, grouped by collection and colour
 animals
   .count(['collection','colour'])
   .then(console.log);
@@ -310,8 +305,7 @@ animals
 
 ### Summing
 
-To get totals of values from your documents call the `sum` function passing in the field you would
-like to aggregate:
+To get totals of values from your documents call the `sum` function passing in the field you would like to aggregate:
 
 ```js
 // get totals on an animals' cost
@@ -352,8 +346,7 @@ animals
 
 ### Stats
 
-To get the statistics on values from your documents, call the `stats` function passing in the 
-field you would like statistics on:
+To get the statistics on values from your documents, call the `stats` function passing in the field you would like statistics on:
 
 ```js
 // get stats on an animals' cost
@@ -418,27 +411,20 @@ DEBUG=silverlining node myapp.js
 
 ## Notes
 
-This library uses Cloudant as its storage engine. It hides some of the complexities of working with Cloudant but if you intend
-to use Cloudant in earnest, you may want to be aware of some of the compromises and design decisions that this library has 
-made to make it simpler for a first-time user.
+This library uses Cloudant as its storage engine. It hides some of the complexities of working with Cloudant but if you intend to use Cloudant in earnest, you may want to be aware of some of the compromises and design decisions that this library has made to make it simpler for a first-time user.
 
 Please note:
 
 - the library hides `_rev` tokens from you. They still exist, but you don't see them in returned documents or API calls, nor are
-they required when updating or deleting documents. You may want to familiarise yourself with [Cloudant's Multi-version Concurrency Control](https://docs.cloudant.com/mvcc.html)
-mechanism to prevent loss of data when the same document is updated in different ways at the same time in a distributed system.
-- when this library creates a database with the `create` function, it also creates a [Cloudant Query](https://docs.cloudant.com/cloudant_query.html)
-index instructing Cloudant to index all fields with a Lucene-based index. This is convenient but probably not what you want to do in 
-a production system. It's much better to only index the fields you need.
-- it is still possible to get document conflicts when using this library. Be careful when updating or deleting documents.
-- calls to the count/sum/stats function result in a [Design Document](https://docs.cloudant.com/design_documents.html) being generated for 
-every combination of keys/values you supply. In a production system, [MapReduce](https://docs.cloudant.com/creating_views.html) views are
-usually grouped together with several views per design document. 
-- with very large data sets, it's not efficient to page through the result set with the `all` function using 'skip' and 'limit' parameters. 
-It's better to [use the startkey_docid parameter](http://glynnbird.tumblr.com/post/56617320962/iterating-over-all-couchdb-documents-the-nice)
-- when using this library to communicate with CouchDB 2.0, the `create` function will throw an error because it will fail to create a 
-Cloudant Query (Mango) text index. After that, the other functions work although the `query` function will be slow because of the lack
-of an index to support it.
+they required when updating or deleting documents. You may want to familiarise yourself with [Cloudant's Multi-version Concurrency Control](https://docs.cloudant.com/mvcc.html) mechanism to prevent loss of data when the same document is updated in different ways at the same time in a distributed system.
+- when this library creates a database with the `create` function, it also creates a [Cloudant Query](https://docs.cloudant.com/cloudant_query.html) index instructing Cloudant to index all fields with a Lucene-based index. This is convenient but probably not what you want to do in a production system. It's much better to only index the fields you need.
+- it is still possible to get document conflicts when using this library. Be careful when updating or deleting documents. see [Introduction to Document Conflicts](https://developer.ibm.com/dwblog/2015/cloudant-document-conflicts-one/)
+- calls to the count/sum/stats function result in a [Design Document](https://docs.cloudant.com/design_documents.html) being generated for every combination of keys/values you supply. In a production system, [MapReduce](https://docs.cloudant.com/creating_views.html) views are usually grouped together with several views per design document. See [Cloudant Design Document Management](https://docs.cloudant.com/design_document_management.html)
+- with very large data sets, it's not efficient to page through the result set with the `all` function using 'skip' and 'limit' parameters. It's better to [use the startkey_docid parameter](http://glynnbird.tumblr.com/post/56617320962/iterating-over-all-couchdb-documents-the-nice)
+- when using this library to communicate with CouchDB 2.0, the `create` function will throw an error because it will fail to create a Cloudant Query (Mango) text index. After that, the other functions work although the `query` function will be slow because of the lack of an index to support it.
 
-It's anticipated that you start using Cloudant with this library and switch to the [Official Cloudant Node.js library](https://github.com/cloudant/nodejs-cloudant)
-when you're ready to build some production code.
+It's anticipated that you start using Cloudant with this library and switch to the [Official Cloudant Node.js library](https://github.com/cloudant/nodejs-cloudant) when you're ready to build some production code.
+
+## Contributing
+
+This is an open-source library released under the Apache-2.0 license. Please feel free to raise issues where you find a problem or wish to request a feature, or submit a Pull Request if you have an improvement to contribute.
