@@ -50,6 +50,16 @@ describe('db', function() {
     });
   });
 
+  it('create - should create a database with no indexes if asked for', function() {
+    var mocks = nock(SERVER)
+      .put('/mydb').reply(200, {ok:true});
+    return nosql.create({indexAll: false}).then(function() {
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
   it('create - should fail when db exists', function() {
     var mocks = nock(SERVER)
       .put('/mydb').reply(412, {ok:false, err:'failed', reason:'exists'});

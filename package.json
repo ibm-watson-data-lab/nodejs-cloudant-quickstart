@@ -1,7 +1,7 @@
 {
   "name": "silverlining",
-  "version": "1.20.0",
-  "description": "Simple NoSQL library",
+  "version": "1.21.0",
+  "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
