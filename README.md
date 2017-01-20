@@ -1,6 +1,6 @@
 # silverlining
 
-[![Build Status](https://travis-ci.org/glynnbird/silverlining.svg?branch=master)](https://travis-ci.org/glynnbird/silverlining)
+[![Build Status](https://travis-ci.org/ibm-cds-labs/silverlining.svg?branch=master)](https://travis-ci.org/ibm-cds-labs/silverlining)
 
 An NoSQL data store built using Cloudant but hiding some of Cloudant's more advanced features:
 
