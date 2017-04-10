@@ -167,6 +167,21 @@ animals
 
 Even if the document id doesn't already exist, *silverlining* will write a new document, so in a sense the `update` function is rather like an "upsert" operation: either update and replace the existing document or create a new one. For this reason, an `upsert` function also exists that is a synonym of the `update` function.
 
+You can also just supply an object which contains the keys you wish to update. Let's say you have pre-existing document:
+
+```js
+{ '_id': 'fish', 'a': 1, 'b': 2 }
+```
+
+and you wish to set this documents value of `b` to be `3` and add a further `c` key. You could
+call:
+
+```js
+animals.update('fish', {b:3, c:'yellow}, true);
+```
+
+when the final parameter is `true` it shows you want to *merge* the supplied values into the existing object.
+
 ### Deleting documents
 
 A document can be deleted by supplying its `_id`:

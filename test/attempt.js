@@ -169,4 +169,17 @@ describe('attempt', function() {
       assert(mocks.isDone());
     });
   });
+
+  it('should merge in new keys with merge=true', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var theupdate = { c:3 };
+    var theupdatewithrev = { _id: 'myddoc', _rev: '1-123', a:1, b:2, c:3 };
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb',  theupdatewithrev).reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
+    return attempt.update(db, thedoc._id, theupdate, true).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
 });
