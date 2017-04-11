@@ -422,6 +422,24 @@ animals
 // }
 ```
 
+## User management
+
+Create a new Cloudant user with permissions ( `_reader`, `_writer`, `_replicator`, `_admin`):
+
+```js
+animals.createUser(['_reader','_writer'])
+.then(console.log)
+// { password: "YPNCaqvTfi", ok: true, key: "blentfindigl" }
+```
+
+A user can be deleted with:
+
+```js
+animals.deleteUser('blentfindigl')
+.then(console.log)
+// { ok: true }
+```
+
 ## Debugging
 
 To see the HTTP requests being made set an environment variable `DEBUG` before running your code:
