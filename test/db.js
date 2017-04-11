@@ -569,7 +569,6 @@ describe('db', function() {
       .get('/mydb/_design/55e12c8b9c4372e1aa7f054c5c0f66ce6a80a40d/_view/55e12c8b9c4372e1aa7f054c5c0f66ce6a80a40d?group=true').reply(200, {rows:[{key:null, value:{ sum: 281, count: 4, min: 45, max: 102, sumsqr: 21857 } }]});
 
     return nosql.stats('price').then(function(data) {
-      console.log('data', data);
       assert.equal(typeof data, 'object');
       assert.equal(typeof data.mean, 'number');
       assert.equal(typeof data.stddev, 'number');
@@ -649,4 +648,91 @@ describe('db', function() {
 
     assert.throws(nosql.stats, Error, 'Missing "val" parameter');
   });
+
+
+  it('createUser - should create a new user', function() {
+    var theUser = { password: '016299e819f0', ok: true, key: 'inswcomeret' };
+    var security = { 
+      _id: 'security', 
+      cloudant:  { 
+        nobody: [],
+        admin: [ '_writer', '_admin', '_replicator', '_reader' ] 
+      } 
+    };
+    var newSecurity = JSON.parse(JSON.stringify(security));
+    var permissions = ['_reader', '_writer'];
+    newSecurity.cloudant.inswcomeret = permissions;
+    var mocks = nock(SERVER)
+      .post('/_api/v2/api_keys').reply(200, theUser)
+      .get('/_api/v2/db/mydb/_security').reply(200, security)
+      .put('/_api/v2/db/mydb/_security', newSecurity).reply(200, {ok:true});
+   
+    return nosql.createUser(permissions).then(function(data) {
+      assert.equal(typeof data, 'object');
+      assert.equal(typeof data.key, 'string');
+      assert.equal(typeof data.password, 'string');
+      assert.equal(data.ok, true);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err)
+      assert(false);
+    });
+  });
+
+  it('createUser - should create a _reader user', function() {
+    var theUser = { password: '016299e819f0', ok: true, key: 'inswcomeret' };
+    var security = { 
+      _id: 'security', 
+      cloudant:  { 
+        nobody: [],
+        admin: [ '_writer', '_admin', '_replicator', '_reader' ] 
+      } 
+    };
+    var newSecurity = JSON.parse(JSON.stringify(security));
+    newSecurity.cloudant.inswcomeret = ['_reader'];
+    var mocks = nock(SERVER)
+      .post('/_api/v2/api_keys').reply(200, theUser)
+      .get('/_api/v2/db/mydb/_security').reply(200, security)
+      .put('/_api/v2/db/mydb/_security', newSecurity).reply(200, {ok:true});
+   
+    return nosql.createUser().then(function(data) {
+      assert.equal(typeof data, 'object');
+      assert.equal(typeof data.key, 'string');
+      assert.equal(typeof data.password, 'string');
+      assert.equal(data.ok, true);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err)
+      assert(false);
+    });
+  });
+
+  it('deleteUser - should delete an existing user', function() {
+    var theUser = { password: '016299e819f0', ok: true, key: 'inswcomeret' };
+    var security = { 
+      _id: 'security', 
+      cloudant:  { 
+        nobody: [],
+        admin: [ '_writer', '_admin', '_replicator', '_reader' ],
+        inswcomeret: ['reader']
+      } 
+    };
+    var newSecurity = JSON.parse(JSON.stringify(security));
+    delete newSecurity.cloudant.inswcomeret;
+    var mocks = nock(SERVER)
+      .get('/_api/v2/db/mydb/_security').reply(200, security)
+      .put('/_api/v2/db/mydb/_security', newSecurity).reply(200, {ok:true});
+    return nosql.deleteUser('inswcomeret').then(function(data) {
+      assert.equal(data.ok, true);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      console.log(err)
+      assert(false);
+    });
+  });
+
+  it('deleteUser - should throw an error with missing username', function() {
+    assert.throws(nosql.deleteUser, Error, 'Missing username parameter');
+  });
+
 });
