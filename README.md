@@ -177,7 +177,7 @@ and you wish to set this documents value of `b` to be `3` and add a further `c` 
 call:
 
 ```js
-animals.update('fish', {b:3, c:'yellow}, true);
+animals.update('fish', {b:3, c:'yellow'}, true);
 ```
 
 when the final parameter is `true` it shows you want to *merge* the supplied values into the existing object.

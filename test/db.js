@@ -457,6 +457,36 @@ describe('db', function() {
     });
   });
 
+  it('update - should  merge update a document with three params', function() {
+    var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
+    var theupdate = {a:2,b:3};
+    var thedoc2 = {  a:2, b:3, _rev: '1-123', _id: 'myddoc'};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb', thedoc2).reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
+
+    return nosql.update(thedoc._id, theupdate, true).then(function(data) {
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
+  it('update - should merge update a document with two params', function() {
+    var thedoc = { _id: 'mydoc', _rev: '1-123', a:1, b:2 };
+    var theupdate = { _id: 'mydoc', a:2, b:3};
+    var thedoc2 = {  a:2, b:3, _rev: '1-123', _id: 'mydoc'};
+    var mocks = nock(SERVER)
+      .get('/mydb/' + thedoc._id).reply(200, thedoc)
+      .post('/mydb', thedoc2).reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
+
+    return nosql.update(theupdate, true).then(function(data) {
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
   it('del - should delete a document', function() {
     var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
     var mocks = nock(SERVER)
