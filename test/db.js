@@ -217,7 +217,7 @@ describe('db', function() {
       ]
     };
     var mocks = nock(SERVER)
-      .get('/mydb/_all_docs?skip=100&limit=100&include_docs=true').reply(200, reply);
+      .get('/mydb/_all_docs?skip=100&limit=200&include_docs=true').reply(200, reply);
     return nosql.all({ skip:100, limit:200}).then(function(data) {
       assert.equal(data.length, 3);
       assert.equal(typeof data[0], 'object');
