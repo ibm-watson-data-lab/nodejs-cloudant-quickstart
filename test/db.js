@@ -261,9 +261,9 @@ describe('db', function() {
       ]
     };
     var mocks = nock(SERVER)
-      .post('/mydb/_find',{ fields: null, selector: { collection: { '$eq': 'dogs' } } , limit: 100}).reply(200, reply);
+      .post('/mydb/_find',{ fields: ['a', 'collection'], selector: { collection: { '$eq': 'dogs' } } , limit: 100}).reply(200, reply);
 
-    return nosql.query("SELECT * FROM mydb WHERE collection='dogs'").then(function(data) {
+    return nosql.query("SELECT a, collection FROM mydb WHERE collection='dogs'").then(function(data) {
       assert.equal(data.length, 3);
       assert.equal(typeof data[0], 'object');
       assert.equal(data[0]._id, '1');
