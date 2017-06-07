@@ -22,9 +22,10 @@
   },
   "homepage": "https://github.com/ibm-cds-labs/silverlining#readme",
   "dependencies": {
-    "async": "^2.1.4",
-    "request": "^2.79.0",
-    "request-promise-native": "^1.0.3"
+    "async": "^2.4.1",
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.3",
+    "sqltomango": "^1.0.0"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",

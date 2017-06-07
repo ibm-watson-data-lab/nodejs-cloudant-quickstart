@@ -283,6 +283,14 @@ animals.query({colour: 'black'}, { fields: 'name', skip: 100});
 animals.query({collection: 'cats'}, { fields: ['name','cost'], sort: { 'cost:number': 'desc'}});
 ```
 
+## Querying the database with SQL
+
+You may also query the database using a subset of Structured Query Language (SQL). Your SQL string will be converted into a Cloudant Query object before being sent to the database:
+
+```js
+animals.query("SELECT name, cost FROM animals WHERE collection = 'cats' ORDER BY name DESC LIMIT 50");
+```
+
 ## Aggregating data
 
 ### Counting
