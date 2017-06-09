@@ -1,6 +1,6 @@
 {
   "name": "silverlining",
-  "version": "1.24.3",
+  "version": "1.24.4",
   "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
