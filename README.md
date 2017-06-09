@@ -297,7 +297,14 @@ The query may contain a complex WHERE clause:
 animals.query("SELECT name, cost FROM animals WHERE (collection = 'cats' OR collection = 'dogs') AND cost < 1000 ORDER BY name DESC LIMIT 500,50");
 ```
 
-But you cannot do all SQL operations. There are no joins, unions, functions or aggregations.
+If you are interested in the which Cloudant Query is being created from your SQL input, you can call the `explain` method instead of `query` instead:
+
+```js
+console.log(animals.explain('SELECT * FROM animals WHERE a >1'));
+// { selector: { a: { '$gt': 1 } } }
+````
+
+Not all SQL operations and features are supported. There are no joins, unions, functions or aggregations.
 
 ## Aggregating data
 

@@ -252,6 +252,17 @@ describe('db', function() {
     });
   });
 
+  it('explain - should explain a SQL query', function() {
+     var q = nosql.explain('SELECT * FROM dogs WHERE a>1');
+     assert.deepEqual(q, { selector: { a: { '$gt': 1 } } });
+  });
+
+  it('explain - should throw an error non non string', function() {
+    assert.throws(function() {
+      var q = nosql.explain({});
+    });
+  });
+
   it('query - should select documents with full CQ object', function() {
     var reply = {
       docs: [
