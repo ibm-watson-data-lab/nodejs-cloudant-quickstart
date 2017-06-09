@@ -252,6 +252,29 @@ describe('db', function() {
     });
   });
 
+  it('query - should select documents with full CQ object', function() {
+    var reply = {
+      docs: [
+         { _id: '1', _rev:'1-123', a:1, collection:'dogs'},
+         { _id: '2', _rev:'1-123', a:2, collection:'dogs'},
+         { _id: '3', _rev:'1-123', a:3, collection:'dogs'},
+      ]
+    };
+    var mocks = nock(SERVER)
+      .post('/mydb/_find',{ selector: { collection:'dogs'}}).reply(200, reply);
+
+    return nosql.query({ selector: {collection:'dogs'}}).then(function(data) {
+      assert.equal(data.length, 3);
+      assert.equal(typeof data[0], 'object');
+      assert.equal(data[0]._id, '1');
+      assert.equal(typeof data[0]._rev, 'undefined');
+      assert.equal(data[0].a, '1');
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
   it('query - should select with SQL', function() {
     var reply = {
       docs: [

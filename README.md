@@ -291,6 +291,14 @@ You may also query the database using a subset of Structured Query Language (SQL
 animals.query("SELECT name, cost FROM animals WHERE collection = 'cats' ORDER BY name DESC LIMIT 50");
 ```
 
+The query may contain a complex WHERE clause:
+
+```js
+animals.query("SELECT name, cost FROM animals WHERE (collection = 'cats' OR collection = 'dogs') AND cost < 1000 ORDER BY name DESC LIMIT 500,50");
+```
+
+But you cannot do all SQL operations. There are no joins, unions, functions or aggregations.
+
 ## Aggregating data
 
 ### Counting
