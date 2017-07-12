@@ -1,6 +1,6 @@
 # silverlining
 
-[![Build Status](https://travis-ci.org/ibm-cds-labs/silverlining.svg?branch=master)](https://travis-ci.org/ibm-cds-labs/silverlining)
+[![Build Status](https://travis-ci.org/ibm-watson-data-lab/silverlining.svg?branch=master)](https://travis-ci.org/ibm-watson-data-lab/silverlining)
 
 An simple Node.js library that can be used to interact with the Cloudant NoSQL database to allow:
 
