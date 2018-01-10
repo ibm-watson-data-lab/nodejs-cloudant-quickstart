@@ -123,7 +123,7 @@ describe('attempt', function() {
   it('should update a document at the second attempt', function() {
     var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
     var thedoc2 = { _id: 'myddoc', _rev: '2-456', a:1, b:2 };
-    var theupdate = {a:1, b:3};
+    var theupdate = {a:1, b:3, _rev: '1-123'};
     var mocks = nock(SERVER)
       .get('/mydb/' + thedoc._id).reply(200, thedoc)
       .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
@@ -138,14 +138,17 @@ describe('attempt', function() {
     var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
     var thedoc2 = { _id: 'myddoc', _rev: '2-456', a:1, b:2 };
     var thedoc3 = { _id: 'myddoc', _rev: '3-678', a:1, b:2 };
+    var firstupdate = {a:1, b:3, _id: 'myddoc', _rev: '1-123'};
+    var secondupdate = {a:1, b:3, _id: 'myddoc', _rev: '2-456'};
+    var thirdupdate = {a:1, b:3, _id: 'myddoc', _rev: '3-678'};
     var theupdate = {a:1, b:3};
     var mocks = nock(SERVER)
       .get('/mydb/' + thedoc._id).reply(200, thedoc)
-      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .post('/mydb',  firstupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
       .get('/mydb/' + thedoc._id).reply(200, thedoc2)
-      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .post('/mydb',  secondupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
       .get('/mydb/' + thedoc._id).reply(200, thedoc3)
-      .post('/mydb', theupdate).reply(200, {ok: true, id: thedoc._id, rev: '4-91011'});
+      .post('/mydb', thirdupdate).reply(200, {ok: true, id: thedoc._id, rev: '4-91011'});
     return attempt.update(db, thedoc._id, theupdate).then(function(data) {
       assert(mocks.isDone());
     });
@@ -155,14 +158,17 @@ describe('attempt', function() {
     var thedoc = { _id: 'myddoc', _rev: '1-123', a:1, b:2 };
     var thedoc2 = { _id: 'myddoc', _rev: '2-456', a:1, b:2 };
     var thedoc3 = { _id: 'myddoc', _rev: '3-678', a:1, b:2 };
+    var firstupdate = {a:1, b:3, _id: 'myddoc', _rev: '1-123'};
+    var secondupdate = {a:1, b:3, _id: 'myddoc', _rev: '2-456'};
+    var thirdupdate = {a:1, b:3, _id: 'myddoc', _rev: '3-678'};
     var theupdate = {a:1, b:3};
     var mocks = nock(SERVER)
       .get('/mydb/' + thedoc._id).reply(200, thedoc)
-      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .post('/mydb',  firstupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
       .get('/mydb/' + thedoc._id).reply(200, thedoc2)
-      .post('/mydb',  theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
+      .post('/mydb',  secondupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'})
       .get('/mydb/' + thedoc._id).reply(200, thedoc3)
-      .post('/mydb', theupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'});
+      .post('/mydb', thirdupdate).reply(409, {ok: false, err: 'failed',reason: 'conflict'});
     return attempt.update(db, thedoc._id, theupdate).then(function(data) {
       assert(false);
     }).catch(function(err) {

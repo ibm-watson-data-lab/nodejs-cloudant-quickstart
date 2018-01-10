@@ -1,6 +1,6 @@
 {
   "name": "silverlining",
-  "version": "1.24.5",
+  "version": "1.24.6",
   "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
@@ -22,14 +22,14 @@
   },
   "homepage": "https://github.com/ibm-cds-labs/silverlining#readme",
   "dependencies": {
-    "async": "^2.4.1",
-    "request": "^2.81.0",
-    "request-promise-native": "^1.0.3",
-    "sqltomango": "^1.2.0"
+    "async": "^2.6.0",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5",
+    "sqltomango": "^1.2.2"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
-    "mocha": "^3.2.0",
-    "nock": "^9.0.2"
+    "mocha": "^3.5.3",
+    "nock": "^9.1.6"
   }
 }
