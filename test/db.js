@@ -452,10 +452,12 @@ describe('db', function() {
     var mocks = nock(SERVER)
       .post('/mydb/_bulk_docs').reply(200, [{ok:true, id:'mydoc1', rev: '1-123' }, {ok:false, id:'mydoc2',err:'conflict' }]);
 
-    return nosql.insert([{_id:'mydoc1', a:1},{_id:'mydoc2', a:1}]).then(function(data) {
+    var src = [{_id:'mydoc1', a:1},{_id:'mydoc2', a:1}]
+    return nosql.insert(src).then(function(data) {
       assert.equal(typeof data, 'object');
       assert.equal(data.success, 1);
       assert.equal(data.failed, 1);
+      assert.equal(src.length, 2);
       assert(mocks.isDone());
     }).catch(function(err) {
       assert(false);

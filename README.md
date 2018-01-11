@@ -329,11 +329,6 @@ animals
 // { black: 1, grey: 1, tabby: 1, white: 2 }
 ```
 
-Values from deeper within your document can be accessed using object notation:
-
-- `address.postcode`
-- `socialmedia.facebook.email`
-
 Passing an array to `count` causes multi-dimensional counting:
 
 ```js

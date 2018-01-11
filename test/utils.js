@@ -6,6 +6,7 @@ describe('utils', function() {
   it('should expose two functions', function() {
     assert(typeof utils.isArray, 'function');
     assert(typeof utils.formatOutput, 'function');
+    assert(typeof utils.clone, 'function');
   });
 
   it('should detect an array', function() {
@@ -74,4 +75,12 @@ describe('utils', function() {
     assert.equal(d, 'dog');
   });
 
+  it('should clone data', function() {
+    var d1 = [ { a:1, b:2}, {c: 1, d:3}];
+    var d2 = utils.clone(d1);
+    assert.deepEqual(d1,d2);
+    d1.splice(0,1);
+    assert.equal(d1.length, 1);
+    assert.equal(d2.length, 2);
+  })
 });
