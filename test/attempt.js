@@ -10,9 +10,10 @@ describe('attempt', function() {
     assert(typeof attempt, 'object');
   });
 
-  it('should have two functions', function() {
+  it('should have three functions', function() {
     assert(typeof attempt.del, 'function');
     assert(typeof attempt.update, 'function');
+    assert(typeof attempt.insert, 'function');
   });
 
   it('should delete a document at the first attempt', function() {
@@ -184,6 +185,42 @@ describe('attempt', function() {
       .get('/mydb/' + thedoc._id).reply(200, thedoc)
       .post('/mydb',  theupdatewithrev).reply(200, {ok: true, id: thedoc._id, rev: '2-123'});
     return attempt.update(db, thedoc._id, theupdate, true).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should do a simple insert', function() {
+    var id = 'myddoc';
+    var thedoc = { a:1, b:2 };
+    var theupdatewithrev = { _id: 'myddoc', _rev: '1-123', a:1, b:2, c:3 };
+    var mocks = nock(SERVER)
+      .put('/mydb/' + id, thedoc).reply(200, {ok: true, id: theupdatewithrev._id, rev: theupdatewithrev._rev});
+    return attempt.insert(db, id, thedoc).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should insert a document at the second attempt', function() {
+    var id = 'myddoc';
+    var thedoc = { a:1, b:2 };
+    var theupdatewithrev = { _id: 'myddoc', _rev: '1-123', a:1, b:2, c:3 };
+    var mocks = nock(SERVER)
+      .put('/mydb/' + id, thedoc).reply(429, {ok: false, err:'too many calls', reason:'api'})
+      .put('/mydb/' + id, thedoc).reply(200, {ok: true, id: theupdatewithrev._id, rev: theupdatewithrev._rev});
+    return attempt.insert(db, id, thedoc).then(function(data) {
+      assert(mocks.isDone());
+    });
+  });
+
+  it('should insert a document at the third attempt', function() {
+    var id = 'myddoc';
+    var thedoc = { a:1, b:2 };
+    var theupdatewithrev = { _id: 'myddoc', _rev: '1-123', a:1, b:2, c:3 };
+    var mocks = nock(SERVER)
+      .put('/mydb/' + id, thedoc).reply(429, {ok: false, err:'too many calls', reason:'api'})
+      .put('/mydb/' + id, thedoc).reply(429, {ok: false, err:'too many calls', reason:'api'})
+      .put('/mydb/' + id, thedoc).reply(200, {ok: true, id: theupdatewithrev._id, rev: theupdatewithrev._rev});
+    return attempt.insert(db, id, thedoc).then(function(data) {
       assert(mocks.isDone());
     });
   });
