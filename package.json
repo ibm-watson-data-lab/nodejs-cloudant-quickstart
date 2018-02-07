@@ -1,6 +1,6 @@
 {
   "name": "cloudant-quickstart",
-  "version": "1.25.0",
+  "version": "1.25.1",
   "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ibm-cds-labs/nodejs-cloudant-quickstart.git"
+    "url": "git+https://github.com/ibm-watson-data-lab/nodejs-cloudant-quickstart.git"
   },
   "keywords": [
     "nosql",
@@ -18,9 +18,9 @@
   "author": "Glynn Bird <glynn.bird@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/ibm-cds-labs/nodejs-cloudant-quickstart/issues"
+    "url": "https://github.com/ibm-watson-data-lab/nodejs-cloudant-quickstart/issues"
   },
-  "homepage": "https://github.com/ibm-cds-labs/nodejs-cloudant-quickstart#readme",
+  "homepage": "https://github.com/ibm-watson-data-lab/nodejs-cloudant-quickstart#readme",
   "dependencies": {
     "async": "^2.6.0",
     "qrate": "^1.0.2",
