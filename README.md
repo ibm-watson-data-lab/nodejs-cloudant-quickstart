@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/ibm-watson-data-lab/nodejs-cloudant-quickstart.svg?branch=master)](https://travis-ci.org/ibm-watson-data-lab/nodejs-cloudant-quickstart)
 
-** Note: this is not the official supported Cloudant Node.js library. You can find that [here](https://www.npmjs.com/package/cloudant). This library is designed for new Cloudant users to data import, querying and aggregation. If you are building a production application, then the [official Cloudant Node.js library](https://www.npmjs.com/package/cloudant) is what you need **
+**Note: this is not the officially supported Cloudant Node.js library. You can find that [here](https://www.npmjs.com/package/cloudant).**
+
+This library is designed for new Cloudant users to import data, make queries and to create aggregations. If you are building a production application, then the [official Cloudant Node.js library](https://www.npmjs.com/package/cloudant) is what you need.
 
 The *cloudant-quickstart* package is a simple Node.js library that can be used to interact with the Cloudant NoSQL database to allow:
 

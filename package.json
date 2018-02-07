@@ -1,6 +1,6 @@
 {
   "name": "cloudant-quickstart",
-  "version": "1.24.7",
+  "version": "1.25.0",
   "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
