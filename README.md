@@ -1,27 +1,29 @@
-# silverlining
+# cloudant-quickstart
 
-[![Build Status](https://travis-ci.org/ibm-watson-data-lab/silverlining.svg?branch=master)](https://travis-ci.org/ibm-watson-data-lab/silverlining)
+[![Build Status](https://travis-ci.org/ibm-watson-data-lab/nodejs-cloudant-quickstart.svg?branch=master)](https://travis-ci.org/ibm-watson-data-lab/nodejs-cloudant-quickstart)
 
-An simple Node.js library that can be used to interact with the Cloudant NoSQL database to allow:
+** Note: this is not the official supported Cloudant Node.js library. You can find that [here](https://www.npmjs.com/package/cloudant). This library is designed for new Cloudant users to data import, querying and aggregation. If you are building a production application, then the [official Cloudant Node.js library](https://www.npmjs.com/package/cloudant) is what you need **
+
+The *cloudant-quickstart* package is a simple Node.js library that can be used to interact with the Cloudant NoSQL database to allow:
 
 - Creation of databases
 - Create/Read/Update/Delete of documents
 - Bulk insert of arrays of documents
-- Queries
+- Queries using Cloudant's query language or using Structured Query Language (SQL)
 - Aggregation for counting, summing and statistics
 
-The *silverlining* library hides the complexity from you so you never see a revision token or a design document.
+The *cloudant-quickstart* library hides the complexity of Cloudant from you so you never have to see a revision token or craft a design document.
 
 The format of the data you are returned is simplified: revision tokens are removed and complex aggregate JSON structures are pared down to a minimum.
 
-Get started storing, querying and aggregating your data using *silverlining*! 
+Get started storing, querying and aggregating your data using *cloudant-quickstart*! 
 
 ## Installation
 
-Build *silverlining* into your own Node.js project with: 
+Build *cloudant-quickstart* into your own Node.js project with: 
 
 ```sh
-npm install --save silverlining
+npm install --save cloudant-quickstart
 ```
 
 ## Using in your application
@@ -30,7 +32,7 @@ Start up the library by passing the URL of your Cloudant database:
 
 ```js
 var url = 'https://username:password@myhost.cloudant.com';
-var animals = require('silverlining')(url, 'animals');
+var animals = require('cloudant-quickstart')(url, 'animals');
 ```
 
 The URL should allow *admin* access to your Cloudant account. 
@@ -39,10 +41,10 @@ Alternatively, a single parameter with the URL of the **database** can be suppli
 
 ```js
 var url = 'https://username:password@myhost.cloudant.com/animals';
-var animals = require('silverlining')(url);
+var animals = require('cloudant-quickstart')(url);
 ```
 
-This library uses Promises so function calls made on the *silverlining* object will be of this form:
+This library uses Promises so function calls made on the *cloudant-quickstart* object will be of this form:
 
 ```js
 animals
@@ -76,7 +78,7 @@ animals
 // {ok:true}
 ```
 
-This creates the database in Cloudant. If you are just connecting to a database that *silverlining* created for you last time, then there is no need for the `create` step.
+This creates the database in Cloudant. If you are just connecting to a database that *cloudant-quickstart* created for you last time, then there is no need for the `create` step.
 
 The `create` function both creates a database and also instructs Cloudant to index all fields of any documents that are added. This allows queries to be asked of any field in the database. If this behaviour is not required, then simply pass in `false` in the `indexAll` option e.g.
 
@@ -119,7 +121,7 @@ animals
 // { ok: true, success: 4, failed: 0 }
 ```
 
-Arrays of documents are written in batches of 500 at a time with up to 5 write operations going on in parallel.
+Arrays of documents are written in batches of 500 at a time.
 
 ### Fetching documents by id
 
@@ -165,7 +167,7 @@ animals
 // {ok:true}
 ```
 
-Even if the document id doesn't already exist, *silverlining* will write a new document, so in a sense the `update` function is rather like an "upsert" operation: either update and replace the existing document or create a new one. For this reason, an `upsert` function also exists that is a synonym of the `update` function.
+Even if the document id doesn't already exist, *cloudant-quickstart* will write a new document, so in a sense the `update` function is rather like an "upsert" operation: either update and replace the existing document or create a new one. For this reason, an `upsert` function also exists that is a synonym of the `update` function.
 
 You can also just supply an object which contains the keys you wish to update. Let's say you have pre-existing document:
 
@@ -463,7 +465,7 @@ animals.deleteUser('blentfindigl')
 To see the HTTP requests being made set an environment variable `DEBUG` before running your code:
 
 ```sh
-DEBUG=silverlining node myapp.js
+DEBUG=cloudant-quickstart node myapp.js
 ```
 
 ## Notes

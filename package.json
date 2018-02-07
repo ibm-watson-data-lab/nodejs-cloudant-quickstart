@@ -1,5 +1,5 @@
 {
-  "name": "silverlining",
+  "name": "cloudant-quickstart",
   "version": "1.24.7",
   "description": "Simple Cloudant library",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ibm-cds-labs/silverlining.git"
+    "url": "git+https://github.com/ibm-cds-labs/nodejs-cloudant-quickstart.git"
   },
   "keywords": [
     "nosql",
@@ -18,11 +18,12 @@
   "author": "Glynn Bird <glynn.bird@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/ibm-cds-labs/silverlining/issues"
+    "url": "https://github.com/ibm-cds-labs/nodejs-cloudant-quickstart/issues"
   },
-  "homepage": "https://github.com/ibm-cds-labs/silverlining#readme",
+  "homepage": "https://github.com/ibm-cds-labs/nodejs-cloudant-quickstart#readme",
   "dependencies": {
     "async": "^2.6.0",
+    "qrate": "^1.0.2",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "sqltomango": "^1.2.2"
