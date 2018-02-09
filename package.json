@@ -4,7 +4,9 @@
   "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha",
+    "codestylefix": "standard --fix index.js lib/*.js",
+    "codestyle": "standard index.js lib/*.js",
+    "test": "npm run codestyle && ./node_modules/mocha/bin/mocha",
     "coverage": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha --"
   },
   "repository": {
@@ -31,6 +33,7 @@
   "devDependencies": {
     "istanbul": "^0.4.5",
     "mocha": "^3.5.3",
-    "nock": "^9.1.6"
+    "nock": "^9.1.6",
+    "standard": "^10.0.3"
   }
 }
