@@ -845,4 +845,15 @@ describe('db', function() {
     assert.throws(nosql.deleteUser, Error, 'Missing username parameter');
   });
 
+  it('deleteDB  - should delete a database', function() {
+    var mocks = nock(SERVER)
+      .delete('/mydb').reply(200, {ok: true});
+    return nosql.deleteDB().then(function(data) {
+      assert.equal(data.ok, true);
+      assert(mocks.isDone());
+    }).catch(function(err) {
+      assert(false);
+    });
+  });
+
 });

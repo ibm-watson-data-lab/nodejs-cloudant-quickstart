@@ -462,6 +462,17 @@ animals.deleteUser('blentfindigl')
 // { ok: true }
 ```
 
+## Deleting a database
+
+Delete an entire database with `deleteDB()`:
+
+```js
+animals.deleteDB().then(console.log)
+// { ok: true }
+```
+
+** Careful: deleting a database is a final, non-reversible action **
+
 ## Debugging
 
 To see the HTTP requests being made set an environment variable `DEBUG` before running your code:
