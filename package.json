@@ -1,6 +1,6 @@
 {
   "name": "cloudant-quickstart",
-  "version": "1.25.4",
+  "version": "1.25.5",
   "description": "Simple Cloudant library",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,7 @@
   "dependencies": {
     "async": "^2.6.0",
     "qrate": "^1.0.2",
-    "request": "^2.85.0",
+    "request": "^2.87.0",
     "request-promise-native": "^1.0.5",
     "sqltomango": "^1.2.3"
   },
